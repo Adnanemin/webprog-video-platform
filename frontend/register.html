@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeTube - Register</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="topbar">
+        <div class="container topbar__inner">
+            <a class="brand" href="index.html">WeTube</a>
+            <nav class="nav">
+                <a href="index.html" class="nav__link">Home</a>
+                <a href="admin.html" class="nav__link">Admin</a>
+                <a href="login.html" class="nav__link">Login</a>
+                <a href="register.html" class="nav__link">Register</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="auth-wrap">
+            <div class="auth-card">
+                <h1 class="auth-title">Create an account</h1>
+                <p class="auth-subtitle">
+                    Demo mode, user accounts will be stored in the database later.
+                </p>
+
+                <form id="registerForm" class="auth-form" novalidate>
+
+                    <label class="label" for="name">Name</label>
+                    <input
+                      id="name"
+                      name="name"
+                      class="input"
+                      type="text"
+                      placeholder="Please enter your name..."
+                      required 
+                    />
+
+                    <label class="label" for="surname">Surname</label>
+                    <input
+                      id="surname"
+                      name="surname"
+                      class="input"
+                      type="text"
+                      placeholder="Please enter your surname..."
+                      required
+                    />
+
+                    <label class="label" for="username">Username</label>
+                    <input
+                      id="username"
+                      name="username"
+                      class="input"
+                      type="text"
+                      placeholder="example_123"
+                      required
+                    />
+                    
+                    <label class="label" for="email">Email</label>
+                    <input
+                      id="email"
+                      name="email"
+                      class="input"
+                      type="email"
+                      placeholder="you@example.com"
+                      required
+                     />
+
+                    <label class="label" for="password">Password</label>
+                    <input
+                      id="password"
+                      name="password"
+                      class="input"
+                      type="password"
+                      placeholder="********"
+                      required
+                    />
+
+                    <label class="label" for="confirm">Confirm Password</label>
+                    <input
+                      id="confirm"
+                      name="confirm"
+                      class="input"
+                      type="password"
+                      placeholder="********"
+                      required 
+                    />
+
+                    <button class="btn auth-btn" type="submit">Register</button>
+                </form>
+
+                <p id="registerMsg" class="notice hidden"></p>
+
+                <p class="auth-footer muted">
+                    Already have an account?
+                    <a class="link" href="login.html">Log in</a>
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container muted">© WeTube</div>
+    </footer> 
+</body>
+</html>
