@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeTube</title>
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+    <header class="topbar">
+        <div class="container topbar__inner">
+            <a class="brand" href="index.html">WeTube</a>
+            <nav class="nav">
+                <a href="index.html" class="nav__link">Home</a>
+                <a href="admin.html" class="nav__link">Admin</a>
+                <a href="login.html" class="nav__link">Login</a>
+                <a href="register.html" class="nav__link">Register</a>
+            </nav>
+        </div>
+    </header>
+    <main class="container">
+
+        <section class="hero">
+            <h1 class="hero__title">Browse Videos</h1>
+            <p class="hero__subtitle">A simple web video player built with HTML, CSS, JS, PHP and SQL.</p>
+        </section>
+
+        <section class="toolbar">
+            <input id="searchInput" class="input" type="search" placeholder="Search videos..." />        
+        </section>
+
+        <section>
+            <div id="videosGrid" class="grid"></div>
+            <p id="emptyState" class="muted hidden">No videos found.</p>
+        </section>
+
+    </main>
+    <footer class="footer">
+        <div class="container muted">© WeTube</div>
+    </footer>
+
+    <script src="js/app.js"></script>
+    <script>
+        window.addEventListener("DOMContentLoaded", () => {
+            initIndexPage();
+        });
+    </script>
+    
+</body>
+</html>
