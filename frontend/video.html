@@ -1,0 +1,62 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VideoHub — Watch</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar__inner">
+      <a class="brand" href="index.html">WeTube</a>
+      <nav class="nav">
+        <a href="index.html" class="nav__link">Home</a>
+        <a href="admin.html" class="nav__link">Admin</a>
+        <a href="login.html" class="nav__link">Login</a>
+        <a href="register.html" class="nav__link">Register</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="breadcrumb">
+      <a class="nav__link" href="index.html">← Back to Home</a>
+    </div>
+
+    <section class="player-wrap">
+      <h1 id="videoTitle" class="video-title">Loading…</h1>
+      <p id="videoDesc" class="video-desc"></p>
+
+      <div class="video-box">
+        <video id="videoPlayer" class="video-el" controls>
+          <source id="videoSource" src="" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+
+        <div id="demoPlaceholder" class="video-placeholder">
+          <div class="video-placeholder__inner">
+            <p class="video-placeholder__title">Demo mode</p>
+            <p class="video-placeholder__text">The player UI is ready, but no MP4 files have been added yet.</p>
+          </div>
+        </div>
+      </div>
+      
+      <p id="demoNotice" class="notice hidden"></p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container muted">© WeTube</div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      initVideoPage();
+    });
+  </script>
+</body>
+</html>
