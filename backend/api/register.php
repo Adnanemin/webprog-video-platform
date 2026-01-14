@@ -1,16 +1,18 @@
 <?php
 declare(strict_types=1);
+
+// Return JSON responses
 header('Content-Type: application/json; charset=utf-8');
 require __DIR__ . '/../config/db.php';
 
-// Accept only POST
+// Allow only POST requests
 if($_SERVER['REQUEST_METHOD'] !== 'POST'){
     http_response_code(405);
     echo json_encode(['error' => 'Only POST method is allowed!']);
     exit;
 }
 
-// Get the variables
+// Read input values
 $username = trim($_POST['username'] ?? '');
 $email = trim($_POST['email'] ?? '');
 $password = $_POST['password'] ?? '';
@@ -22,9 +24,10 @@ if($username === '' || $email === '' || $password === ''){
     exit;
 }
 
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)){
-    http_response_code(400); 
-
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Invalid email format']);
+    exit;
 }
 
 if(strlen($password) < 6){
@@ -66,6 +69,7 @@ try{
         'message' => 'User registered successfully.'
     ]);
 } catch (PDOException $e){
+    // Database or server error
     http_response_code(500);
     echo json_encode(['error' => 'Server Error!']);
 }
