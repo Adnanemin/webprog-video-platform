@@ -13,12 +13,14 @@ if($_SERVER['REQUEST_METHOD'] !== 'POST'){
 }
 
 // Read input values
-$username = trim($_POST['username'] ?? '');
-$email = trim($_POST['email'] ?? '');
-$password = $_POST['password'] ?? '';
+$firstName = trim($_POST['first_name'] ?? '');
+$lastName  = trim($_POST['last_name'] ?? '');
+$username  = trim($_POST['username'] ?? '');
+$email     = trim($_POST['email'] ?? '');
+$password  = $_POST['password'] ?? '';
 
 // Validation
-if($username === '' || $email === '' || $password === ''){
+if ($firstName === '' || $lastName === '' || $username === '' || $email === '' || $password === '') {
     http_response_code(400);
     echo json_encode(['error' => 'All fields are required!']);
     exit;
@@ -46,7 +48,7 @@ try{
     ]);
     if ($check->fetch()){
         http_response_code(409);
-        echo json_encode(['error' => 'Email or username already exists']);
+        echo json_encode(['error' => 'Email or username already exists!']);
         exit;
     }
     // Hash the password
@@ -54,13 +56,15 @@ try{
 
     // Add users
     $insert = $pdo->prepare(
-        "INSERT INTO users(username, email, password)
-        VALUES (:username, :email, :password)"
+        "INSERT INTO users(first_name, last_name, username, email, password)
+         VALUES (:first_name, :last_name, :username, :email, :password)"
     );
     $insert->execute([
-        ":username" => $username,
-        ":email" => $email,
-        ":password" => $passwordHash
+        ":first_name" => $firstName,
+        ":last_name"  => $lastName,
+        ":username"   => $username,
+        ":email"      => $email,
+        ":password"   => $passwordHash
     ]);
 
     http_response_code(201);
