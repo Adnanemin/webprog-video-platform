@@ -1,5 +1,43 @@
-const USE_FAKE_DATA = true;
+const USE_FAKE_DATA = false; // use backend when available (fallback to local if it fails)
 const API_BASE = "../backend/api";
+
+// ---------- API helpers ----------
+async function apiGet(path, params = {}) {
+  const url = new URL(`${API_BASE}/${path}`, window.location.href);
+  Object.entries(params).forEach(([k, v]) => {
+    if (v !== undefined && v !== null && String(v).length) url.searchParams.set(k, v);
+  });
+
+  const res = await fetch(url.toString(), { credentials: "include" });
+  const json = await res.json().catch(() => ({}));
+  return { ok: res.ok, status: res.status, json };
+}
+
+async function apiPostForm(path, formObj = {}) {
+  const fd = new FormData();
+  Object.entries(formObj).forEach(([k, v]) => fd.append(k, v));
+
+  const res = await fetch(`${API_BASE}/${path}` , {
+    method: "POST",
+    body: fd,
+    credentials: "include"
+  });
+
+  const json = await res.json().catch(() => ({}));
+  return { ok: res.ok, status: res.status, json };
+}
+
+function normalizeVideoFromBackend(v) {
+  if (!v) return null;
+  return {
+    id: Number(v.id),
+    title: v.title ?? "Untitled",
+    description: v.description ?? "",
+    file_path: v.video_path ?? v.file_path ?? "",
+    category: v.category_name ?? v.category ?? "Uncategorized",
+    thumb_path: v.thumbnail_path ?? v.thumb_path ?? "thumbnails/placeholder.png"
+  };
+}
 
 const VIDEOS = [
   {
@@ -60,6 +98,56 @@ const VIDEOS = [
   }
 ];
 
+// ---------- Watch history (frontend demo using localStorage) ----------
+const HISTORY_KEY = "wetube_watch_history";
+const HISTORY_LIMIT = 50;
+
+function loadHistory() {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveHistory(items) {
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(items));
+}
+
+async function addToHistory(video) {
+  if (!video || video.id == null) return;
+
+  const now = new Date();
+  const entry = {
+    video_id: video.id,
+    title: video.title || "Untitled",
+    watched_at: now.toISOString()
+  };
+
+  // Dedupe by video_id: keep newest at the top
+  const prev = loadHistory().filter(h => h.video_id !== entry.video_id);
+  const next = [entry, ...prev].slice(0, HISTORY_LIMIT);
+  saveHistory(next);
+
+  // Backend logging (requires login; guests will get 403)
+  if (!USE_FAKE_DATA) {
+    const r = await apiPostForm("history_add.php", { video_id: String(video.id) });
+    // Guests/not-logged-in will get 403; ignore that silently
+    if (!r.ok && r.status !== 403 && r.status !== 401) {
+      console.warn("history_add failed", r.status, r.json);
+    }
+  }
+}
+
+function formatHistoryDate(iso) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "—";
+  const pad = n => String(n).padStart(2, "0");
+  return `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 // ---------- Utilities ----------
 function qs(id) {
   return document.getElementById(id);
@@ -85,16 +173,41 @@ function getQueryParam(name) {
 }
 
 // ---------- Data layer ----------
-async function getVideosList() {
+async function getVideosList(query = "") {
   if (USE_FAKE_DATA) return VIDEOS;
-  return [];
+
+  // Try backend list endpoint (if your backend supports `q` it will filter)
+  const { ok, json } = await apiGet("videos_list.php", { q: query });
+
+  const list =
+    (json && Array.isArray(json.videos) && json.videos) ||
+    (json && Array.isArray(json.data) && json.data) ||
+    null;
+
+  if (!ok || !list) return VIDEOS; // fallback
+
+  return list.map(normalizeVideoFromBackend).filter(Boolean);
 }
 
 async function getVideoDetailById(id) {
   const vid = Number(id);
   if (!Number.isFinite(vid)) return null;
+
   if (USE_FAKE_DATA) return VIDEOS.find((v) => v.id === vid) || null;
-  return null;
+
+  // Try backend detail endpoint
+  const { ok, json } = await apiGet("video_detail.php", { id: String(vid) });
+
+  const raw =
+    (json && json.video && typeof json.video === "object" && json.video) ||
+    (json && json.data && typeof json.data === "object" && json.data) ||
+    null;
+
+  if (ok && raw) return normalizeVideoFromBackend(raw);
+
+  // Fallback: ask list and find
+  const all = await getVideosList();
+  return all.find((v) => v.id === vid) || null;
 }
 
 // ---------- Rendering ----------
@@ -139,18 +252,26 @@ function renderVideosGrid(videos) {
 // ---------- Page init: index.html ----------
 async function initIndexPage() {
   const searchInput = qs("searchInput");
-  const allVideos = await getVideosList();
+  let allVideos = await getVideosList();
   renderVideosGrid(allVideos);
 
   if (!searchInput) return;
 
-  searchInput.addEventListener("input", () => {
-    const q = searchInput.value.trim().toLowerCase();
+  searchInput.addEventListener("input", async () => {
+    const q = searchInput.value.trim();
+
+    if (!USE_FAKE_DATA) {
+      allVideos = await getVideosList(q);
+      renderVideosGrid(allVideos);
+      return;
+    }
+
+    const qLower = q.toLowerCase();
     const filtered = allVideos.filter(
       (v) =>
-        (v.title || "").toLowerCase().includes(q) ||
-        (v.description || "").toLowerCase().includes(q) ||
-        (v.category || "").toLowerCase().includes(q)
+        (v.title || "").toLowerCase().includes(qLower) ||
+        (v.description || "").toLowerCase().includes(qLower) ||
+        (v.category || "").toLowerCase().includes(qLower)
     );
     renderVideosGrid(filtered);
   });
@@ -198,9 +319,147 @@ async function initVideoPage() {
     playerEl.load();
   }
   if (playerEl) playerEl.classList.remove("hidden");
+
+  // Record watch history (demo)
+  await addToHistory(video);
+}
+
+// ---------- Page init: history.html ----------
+async function initHistoryPage() {
+  const tbody = qs("historyTbody");
+  if (!tbody) return;
+
+  // Prefer backend history when available
+  let items = loadHistory();
+  if (!USE_FAKE_DATA) {
+    const { ok, status, json } = await apiGet("history_list.php", { limit: String(HISTORY_LIMIT) });
+    const rows = (json && Array.isArray(json.history) && json.history) || null;
+
+    if (ok && rows) {
+      items = rows.map(r => ({
+        video_id: Number(r.video_id),
+        title: r.title || "Untitled",
+        watched_at: r.watched_at
+      }));
+
+      // cache locally too
+      saveHistory(items);
+    } else if (status !== 403 && status !== 401) {
+      console.warn("history_list failed", status, json);
+    }
+  }
+
+  tbody.innerHTML = "";
+
+  if (!items.length) {
+    tbody.innerHTML = `
+      <tr>
+        <td>—</td>
+        <td class="muted">No history yet.</td>
+        <td class="table-right">—</td>
+      </tr>
+    `;
+    return;
+  }
+
+  for (const h of items) {
+    const tr = document.createElement("tr");
+    const title = escapeHtml(h.title || "Untitled");
+    const date = escapeHtml(formatHistoryDate(h.watched_at));
+
+    tr.innerHTML = `
+      <td>${date}</td>
+      <td>
+        <a class="link" href="video.html?id=${encodeURIComponent(h.video_id)}">${title}</a>
+      </td>
+      <td class="table-right">
+        <a class="btn btn-small" href="video.html?id=${encodeURIComponent(h.video_id)}">Watch</a>
+      </td>
+    `;
+
+    tbody.appendChild(tr);
+  }
+}
+
+// ---------- Page init: login.html ----------
+function initLoginPage() {
+  // Prefer a specific form id, but fall back to a form that has inputs named login/password
+  const form = qs("loginForm") || document.querySelector("form");
+  if (!form) return;
+
+  const loginInput = form.querySelector("input[name='login']");
+  const passInput = form.querySelector("input[name='password']");
+  if (!loginInput || !passInput) return;
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const login = loginInput.value.trim();
+    const password = passInput.value;
+
+    const msg = qs("loginMsg");
+    if (msg) {
+      msg.classList.remove("hidden");
+      msg.textContent = "Logging in…";
+    }
+
+    const r = await apiPostForm("login.php", { login, password });
+
+    if (r.ok && r.json && r.json.success) {
+      if (msg) {
+        msg.textContent = "Logged in! Redirecting…";
+      }
+      // Go back to home (or you can change to myaccount.html)
+      window.location.href = "index.html";
+      return;
+    }
+
+    const err = (r.json && r.json.error) ? r.json.error : "Login failed";
+    if (msg) {
+      msg.textContent = err;
+    } else {
+      alert(err);
+    }
+  });
+}
+
+// ---------- Logout helper (used by navbar button/link if present) ----------
+async function doLogout() {
+  const r = await apiPostForm("logout.php", {});
+  if (r.ok && r.json && r.json.success) {
+    // Keep local history; just redirect
+    window.location.href = "welcome.html";
+    return;
+  }
+  console.warn("logout failed", r.status, r.json);
+}
+
+function initLogoutBindings() {
+  // If you have a logout button/link with id="logoutBtn", wire it.
+  const btn = qs("logoutBtn");
+  if (btn) {
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      await doLogout();
+    });
+  }
+
+  // If you use an <a href="#" data-logout>Logout</a>, wire that too.
+  const link = document.querySelector("[data-logout]");
+  if (link) {
+    link.addEventListener("click", async (e) => {
+      e.preventDefault();
+      await doLogout();
+    });
+  }
 }
 
 window.addEventListener("DOMContentLoaded", () => {
   if (qs("videosGrid")) initIndexPage();
   if (qs("videoPlayer") || qs("demoPlaceholder")) initVideoPage();
+  if (qs("historyTbody")) initHistoryPage();
+
+  // Auth pages / buttons
+  initLoginPage();
+  initLogoutBindings();
 });
