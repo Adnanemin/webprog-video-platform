@@ -17,10 +17,18 @@ $lastName  = trim($_POST['last_name'] ?? '');
 $username  = trim($_POST['username'] ?? '');
 $email     = trim($_POST['email'] ?? '');
 $password  = (string)($_POST['password'] ?? '');
+// Accept both naming styles: confirm_password (recommended) or confirmPassword
+$confirmPassword = (string)($_POST['confirm_password'] ?? ($_POST['confirmPassword'] ?? ''));
 
-if ($firstName === '' || $lastName === '' || $username === '' || $email === '' || $password === '') {
+if ($firstName === '' || $lastName === '' || $username === '' || $email === '' || $password === '' || $confirmPassword === '') {
     http_response_code(400);
     echo json_encode(['error' => 'All fields are required']);
+    exit;
+}
+
+if ($password !== $confirmPassword) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Passwords do not match']);
     exit;
 }
 
