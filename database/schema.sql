@@ -6,9 +6,12 @@ USE video_platform;
 -- User Table
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
     username VARCHAR(50) NOT NULL UNIQUE,
     email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
+    is_admin INT DEFAULT 0 CHECK (is_admin IN (0,1)),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -49,4 +52,19 @@ CREATE TABLE comments (
 
     INDEX idx_comments_user_id (user_id),
     INDEX idx_comments_video_id (video_id)
+);
+
+-- Watch Histroy Table
+CREATE TABLE watch_history(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    video_id INT NOT NULL,
+    watched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (video_id) REFERENCES videos(id) ON DELETE CASCADE,
+
+    INDEX idx_history_user(user_id),
+    INDEX idx_history_video(video_id),
+    INDEX idx_history_watched_at(watched_at)
 );
