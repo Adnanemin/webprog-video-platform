@@ -16,44 +16,41 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // Read input values
-$email = trim($_POST['email'] ?? '');
+$login    = trim($_POST['login'] ?? ''); // can be username or email
 $password = $_POST['password'] ?? '';
 
 // Validation
-if ($email === '' || $password === '') {
+if ($login === '' || $password === '') {
     http_response_code(400);
-    echo json_encode(['error' => 'Email and password required!']);
-    exit;
-}
-
-// Validate email format
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Invalid email format']);
+    echo json_encode(['error' => 'Login and password required!']);
     exit;
 }
 
 try {
-    //Fetch user by email
+    //Fetch user by username or email
     $stmt = $pdo->prepare(
         "SELECT id, username, email, password
-        FROM users
-        WHERE email = :email"
+         FROM users
+         WHERE email = :login_email OR username = :login_username
+         LIMIT 1"
     );
-    $stmt->execute([':email' => $email]);
+    $stmt->execute([
+        ':login_email' => $login,
+        ':login_username' => $login
+    ]);
     $user = $stmt->fetch();
 
     // If user does not exist
     if (!$user) {
         http_response_code(401);
-        echo json_encode(['error' => 'There is no account!ß']);
+        echo json_encode(['error' => 'Invalid username/email or password!']);
         exit;
     }
 
     // Verify hashed password
     if (!password_verify($password, $user['password'])) {
         http_response_code(401);
-        echo json_encode(['error' => 'Invalid email or password!']);
+        echo json_encode(['error' => 'Invalid username/email or password!']);
         exit;
     }
 
@@ -78,8 +75,11 @@ try {
             'email' => $user['email']
         ]
     ]);
-} catch (PDOException $e){
-    // Database or server error
+} catch (PDOException $e) {
+    // Database or server error (debug details for development)
     http_response_code(500);
-    echo json_encode(["error" => "Server error"]);
+    echo json_encode([
+        'error' => 'Server error',
+        'details' => $e->getMessage()
+    ]);
 }
