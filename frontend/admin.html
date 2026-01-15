@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeTube - Admin</title>
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+    <header class="topbar">
+    <div class="container topbar__inner">
+      <a class="brand" href="index.html">VideoHub</a>
+      <nav class="nav">
+        <a href="index.html" class="nav__link">Home</a>
+        <a href="admin.html" class="nav__link">My Account</a>
+        <a href="login.html" class="nav__link">Login</a>
+        <a href="register.html" class="nav__link">Register</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+        <h1 class="hero__title">Admin Dashboard</h1>
+        <p class="hero__subtitle">Demo mode, later this page will manage videos from the database.</p>
+    </section>
+
+    <section class="admin-grid">
+        <div class="admin-card">
+            <h2 class="admin-cad__title">Add / Edit video</h2>
+
+            <form id="videoForm" class="admin-form" novalidate>
+
+                <input id="videoId" type="hidden" />
+
+                <label class="label" for="title">Title</label>
+                <input id="title" class="input" type="text" placeholder="Video Title" required />
+
+                <label class="label" for="description">Description</label>
+                <input id="description" class="input textare" placeholder="Short description" required />
+
+                <label class="label" for="category">Category</label>
+                <input id="category" class="input" type="text" placeholder="e.g. General" required />
+
+                <label class="label" for="filePath">File Path (later from uploads)</label>
+                <input id="filePath" class="input" type="text" placeholder="uploads/video.mp4" required />
+
+                <div class="admin-actions">
+                    <button class="btn" type="submit">Save</button>
+                    <button id="cancelEditBtn" class="btn btn-ghost" type="button">Cancel</button>
+                </div>
+            </form>
+
+            <p id="adminMsg" class="notice hidden"></p>
+        </div>
+
+        <div class="admin-card">
+            <h2 class="admin-card__title">Videos</h2>
+
+            <div class="table_wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th class="table-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="videosTbody">
+                        <!-- rows injected by JS-->
+                    </tbody>
+                </table>
+            </div>
+
+            <p id="adminEmpty" class="muted hidden">No videos yet.</p>
+        </div>
+    </section>
+  </main>
+
+  <footer cclass="footer">
+    <div class="container muted">© WeTube</div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+        initAdminPage(); // we'll add this function next step
+    });
+  </script>
+
+</body>
+</html>

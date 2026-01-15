@@ -291,3 +291,264 @@ a{ color: inherit; text-decoration: none; }
 .link:hover{
   color: var(--text);
 }
+/* -------- Admin page -------- */
+.admin-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding-bottom: 30px;
+}
+
+/* Stack on small screens */
+@media (max-width: 900px){
+  .admin-grid{
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin-card{
+  background: linear-gradient(180deg, rgba(17,24,39,0.9), rgba(15,23,42,0.9));
+  border: 1px solid rgba(31,41,55,0.9);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+
+.admin-card__title{
+  margin: 2px 0 12px;
+  font-size: 18px;
+}
+
+/* Admin form */
+.admin-form{
+  display: grid;
+  gap: 10px;
+}
+
+.textarea{
+  min-height: 110px;
+  resize: vertical;
+}
+
+/* Buttons row */
+.admin-actions{
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+/* Ghost / cancel button */
+.btn-ghost{
+  background: transparent;
+}
+.btn-ghost:hover{
+  background: rgba(229,231,235,0.06);
+}
+
+/* Table styles */
+.table-wrap{
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(31,41,55,0.9);
+}
+
+.table{
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 520px;
+}
+
+.table th,
+.table td{
+  padding: 12px;
+  border-bottom: 1px solid rgba(31,41,55,0.8);
+  text-align: left;
+}
+
+.table th{
+  color: var(--muted);
+  font-weight: 600;
+  background: rgba(11,15,23,0.35);
+}
+
+.table-right{
+  text-align: right;
+}
+
+.table td:last-child{
+  text-align: right;
+}
+
+/* Action buttons inside table */
+.row-actions{
+  display: inline-flex;
+  gap: 8px;
+}
+
+.btn-small{
+  padding: 7px 10px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+/* -------- Welcome / Entrance page -------- */
+
+.welcome-body{
+  min-height: 100vh;
+  position:relative;
+  overflow: hidden;
+}
+
+.welcome-wrap{
+  position:relative;
+  z-index:1;
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  padding: 40px 20px;
+  padding-top: 30px;
+}
+
+.welcome-title{
+  position: relative;
+  font-size: 44px;
+  font-weight: 900;
+  letter-spacing: 1.2px;
+  text-align: center;
+  justify-self: center;
+
+  padding: 14px 26px;
+  border-radius: 999px;
+
+  background: rgba(17, 24, 39, 0.55);
+  backdrop-filter: blur(6px);
+
+  border: 1px solid rgba(156, 163, 175, 0.25);
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.35),
+    0 0 22px rgba(16, 185, 129, 0.25);
+}
+
+.welcome-title::before{
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+
+  background: linear-gradient(
+    90deg,
+    rgba(37, 99, 235, 0.6),
+    rgba(16, 185, 129, 0.6),
+    rgba(37, 99, 235, 0.6)
+  );
+
+  opacity: 0.6;
+
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+
+  padding: 2px;
+  pointer-events: none;
+
+  animation: titleGlow 6s linear infinite;
+}
+
+@keyframes titleGlow{
+  0%{ filter: hue-rotate(0deg); }
+  100%{ filter: hue-rotate(360deg); }
+}
+
+.welcome-actions{
+  align-self: center;
+  justify-self: center;
+  display:flex;
+  flex-direction:column;
+  gap: 12px; 
+  width: 400px;
+  height: 350px;
+}
+
+.welcome-btn{
+  width: 100%;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.welcome-btn{
+  width: 100%;
+  justify-content: center;
+  position: relative;
+
+  /* Trick: 2 backgrounds:
+     - first is the button fill (padding-box)
+     - second is the animated border (border-box) */
+  border: 1px solid transparent;
+  border-radius: 12px;
+
+  background:
+    linear-gradient(rgba(229,231,235,0.06), rgba(229,231,235,0.06)) padding-box,
+    linear-gradient(90deg,
+      rgba(37, 99, 235, 0.25),
+      rgba(16, 185, 129, 0.20),
+      rgba(37, 99, 235, 0.25)
+    ) border-box;
+
+  /* animate only the border gradient */
+  background-size: auto, 200% 200%;
+  background-position: 0 0, 0% 50%;
+  animation: welcomeBorderShift 10s linear infinite;
+}
+
+.welcome-body::before,
+.welcome-body::after{
+  content: "";
+  position: absolute;
+  width: 70vmax;
+  height: 70vmax;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.45;
+
+  /* 4 blobs total (2 navy/blue + 2 mint/blue) */
+    background:
+    radial-gradient(circle at 30% 30%, rgba(37, 99, 235, 0.30), rgba(15, 23, 42, 0) 60%),
+    radial-gradient(circle at 70% 70%, rgba(99, 102, 241, 0.20), rgba(15, 23, 42, 0) 58%),
+    radial-gradient(circle at 65% 28%, rgba(16, 185, 129, 0.32), rgba(15, 23, 42, 0) 56%),
+    radial-gradient(circle at 25% 75%, rgba(34, 197, 94, 0.28), rgba(15, 23, 42, 0) 58%);
+
+  /* faster movement */
+  animation: floatBg 5s ease-in-out infinite;
+}
+
+.welcome-body::before{
+  top: -30vmax;
+  left: -25vmax;
+}
+
+.welcome-body::after{
+  bottom: -30vmax;
+  right: -25vmax;
+  animation-direction: reverse;
+  animation-duration: 4.5s;
+}
+
+@keyframes floatBg{
+  0%{
+    transform: translate(0, 0) scale(1);
+  }
+  50%{
+    transform: translate(6vmax, 4vmax) scale(1.05);
+  }
+  100%{
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+@keyframes welcomeBorderShift{
+  0%   { background-position: 0 0,   0% 50%; }
+  100% { background-position: 0 0, 200% 50%; }
+}
