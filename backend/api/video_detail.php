@@ -1,52 +1,75 @@
 <?php
 declare(strict_types=1);
 
-// Return JSON responses
 header('Content-Type: application/json; charset=utf-8');
 
 require __DIR__ . '/../config/db.php';
 
-// Check video id
-$videoId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+// Optional debug: export APP_DEBUG=1 to include error details in JSON
+$debug = (getenv('APP_DEBUG') === '1');
 
+// Ensure db.php initialized $pdo
+if (!isset($pdo) || !($pdo instanceof PDO)) {
+    http_response_code(500);
+    echo json_encode([
+        'error' => 'Server error',
+        'details' => $debug ? 'Database connection not initialized ($pdo missing)' : null
+    ]);
+    exit;
+}
+
+// Only GET is allowed
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+    http_response_code(405);
+    echo json_encode(['error' => 'Only GET method is allowed']);
+    exit;
+}
+
+$videoId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if ($videoId <= 0) {
     http_response_code(400);
-    echo json_encode(['error' => 'Invalid video id']);
+    echo json_encode(['error' => 'Invalid id']);
     exit;
 }
 
 try {
-    $sql = "
-        SELECT
+    $stmt = $pdo->prepare(
+        'SELECT 
             v.id,
             v.title,
             v.description,
             v.video_path,
             v.thumbnail_path,
-            v.uploaded_at,
-            u.username,
-            c.name AS category
-        FROM videos v
-        JOIN users u ON u.id = v.user_id
-        LEFT JOIN categories c ON c.id = v.category_id
-        WHERE v.id = :id
-        LIMIT 1
-    ";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([':id' => $videoId]);
-    $video = $stmt->fetch();
+            v.user_id,
+            v.category_id,
+            v.uploaded_at AS created_at,
+            u.username AS uploader_username,
+            c.name AS category_name
+         FROM videos v
+         JOIN users u ON u.id = v.user_id
+         JOIN categories c ON c.id = v.category_id
+         WHERE v.id = :id
+         LIMIT 1'
+    );
 
-    // If video not found
-    if (!$video){
+    $stmt->execute([':id' => $videoId]);
+    $video = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$video) {
         http_response_code(404);
         echo json_encode(['error' => 'Video not found']);
         exit;
     }
 
-    // Success
-    http_response_code(200);
-    echo json_encode($video, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    echo json_encode(['success' => true, 'video' => $video]);
 } catch (PDOException $e) {
+    // Log the real DB error to XAMPP php_error_log
+    error_log('video_detail.php PDOException: ' . $e->getMessage());
+
     http_response_code(500);
-    echo json_encode(['error' => 'Server error']);
+    $payload = ['error' => 'Server error'];
+    if ($debug) {
+        $payload['details'] = $e->getMessage();
+    }
+    echo json_encode($payload);
 }

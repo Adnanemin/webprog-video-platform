@@ -6,6 +6,7 @@ session_start();
 
 // Return JSON responses
 header('Content-Type: application/json; charset=utf-8');
+
 require __DIR__ . '/../config/db.php';
 
 // Allow only POST requests
