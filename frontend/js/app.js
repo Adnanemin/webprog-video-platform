@@ -478,6 +478,52 @@ function initLogoutBindings() {
   }
 }
 
+// Register page
+
+function initRegisterPage() {
+  const form = qs("registerForm") || document.querySelector("form");
+  if (!form) return;
+
+  // Grab inputs by name (must match backend)
+  const nameInput = form.querySelector("input[name='name']") || form.querySelector("input[name='name_surname']");
+  const userInput = form.querySelector("input[name='username']");
+  const emailInput = form.querySelector("input[name='email']");
+  const passInput = form.querySelector("input[name='password']");
+
+  // If required fields are missing, don't attach handler
+  if (!userInput || !emailInput || !passInput) return;
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const payload = {
+      username: userInput.value.trim(),
+      email: emailInput.value.trim(),
+      password: passInput.value
+    };
+
+    if (nameInput) payload.name = nameInput.value.trim(); // or name_surname depending on backend
+
+    const msg = qs("registerMsg");
+    if (msg) {
+      msg.classList.remove("hidden");
+      msg.textContent = "Creating account…";
+    }
+
+    const r = await apiPostForm("register.php", payload);
+
+    if (r.ok && r.json && (r.json.success === true || r.json.ok === true)) {
+      if (msg) msg.textContent = "Account created! Redirecting to login…";
+      window.location.href = "login.html";
+      return;
+    }
+
+    const err = (r.json && r.json.error) ? r.json.error : "Register failed";
+    if (msg) msg.textContent = err;
+    else alert(err);
+  });
+}
+
 window.addEventListener("DOMContentLoaded", () => {
   if (qs("videosGrid")) initIndexPage();
   if (qs("videoPlayer") || qs("demoPlaceholder")) initVideoPage();
@@ -486,4 +532,6 @@ window.addEventListener("DOMContentLoaded", () => {
   // Auth pages / buttons
   initLoginPage();
   initLogoutBindings();
+  initRegisterPage();
 });
+
