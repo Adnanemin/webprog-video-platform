@@ -1,5 +1,8 @@
 const USE_FAKE_DATA = false; // use backend when available (fallback to local if it fails)
-const API_BASE = "../backend/api";
+
+// Frontend is served from the VirtualHost (DocumentRoot = frontend/).
+// Backend API is exposed at: http://webprog-video-platform.local/api/...
+const API_BASE = "/api";
 
 // ---------- API helpers ----------
 async function apiGet(path, params = {}) {
@@ -14,12 +17,13 @@ async function apiGet(path, params = {}) {
 }
 
 async function apiPostForm(path, formObj = {}) {
-  const fd = new FormData();
-  Object.entries(formObj).forEach(([k, v]) => fd.append(k, v));
+  const body = new URLSearchParams();
+  Object.entries(formObj).forEach(([k, v]) => body.set(k, v));
 
-  const res = await fetch(`${API_BASE}/${path}` , {
+  const res = await fetch(`${API_BASE}/${path}`, {
     method: "POST",
-    body: fd,
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: body.toString(),
     credentials: "include"
   });
 
@@ -176,17 +180,22 @@ function getQueryParam(name) {
 async function getVideosList(query = "") {
   if (USE_FAKE_DATA) return VIDEOS;
 
-  // Try backend list endpoint (if your backend supports `q` it will filter)
-  const { ok, json } = await apiGet("videos_list.php", { q: query });
+  // Folder-based listing endpoint (backend scans frontend/videos + frontend/thumbnails)
+  const { ok, json } = await apiGet("media_list.php");
 
-  const list =
-    (json && Array.isArray(json.videos) && json.videos) ||
-    (json && Array.isArray(json.data) && json.data) ||
-    null;
-
+  const list = (json && Array.isArray(json.videos) && json.videos) || null;
   if (!ok || !list) return VIDEOS; // fallback
 
-  return list.map(normalizeVideoFromBackend).filter(Boolean);
+  const normalized = list.map(normalizeVideoFromBackend).filter(Boolean);
+  const q = String(query || "").trim().toLowerCase();
+  if (!q) return normalized;
+
+  // Simple client-side search over the returned list
+  return normalized.filter(v =>
+    (v.title || "").toLowerCase().includes(q) ||
+    (v.description || "").toLowerCase().includes(q) ||
+    (v.category || "").toLowerCase().includes(q)
+  );
 }
 
 async function getVideoDetailById(id) {
@@ -387,8 +396,17 @@ function initLoginPage() {
   const form = qs("loginForm") || document.querySelector("form");
   if (!form) return;
 
-  const loginInput = form.querySelector("input[name='login']");
-  const passInput = form.querySelector("input[name='password']");
+  // Accept both naming styles from the frontend: login or username
+  const loginInput =
+    form.querySelector("input[name='login']") ||
+    form.querySelector("input[name='username']") ||
+    form.querySelector("#login") ||
+    form.querySelector("#username");
+
+  const passInput =
+    form.querySelector("input[name='password']") ||
+    form.querySelector("#password");
+
   if (!loginInput || !passInput) return;
 
   form.addEventListener("submit", async (e) => {
@@ -414,7 +432,13 @@ function initLoginPage() {
       return;
     }
 
-    const err = (r.json && r.json.error) ? r.json.error : "Login failed";
+    const err = (r.json && r.json.error)
+      ? r.json.error
+      : `Login failed (HTTP ${r.status})`;
+
+    // Helpful debug info during development
+    console.warn("login failed", r.status, r.json);
+
     if (msg) {
       msg.textContent = err;
     } else {
