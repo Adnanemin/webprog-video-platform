@@ -29,7 +29,7 @@ if ($login === '' || $password === '') {
 try {
     //Fetch user by username or email
     $stmt = $pdo->prepare(
-        "SELECT id, username, email, password
+        "SELECT id, username, email, password, is_admin
          FROM users
          WHERE email = :login_email OR username = :login_username
          LIMIT 1"
@@ -61,25 +61,26 @@ try {
 
     // Store minimal user info in session
     $_SESSION['user'] = [
-        'id' => $user['id'],
+        'id' => (int)$user['id'],
         'username' => $user['username'],
-        'email' => $user['email']
+        'email' => $user['email'],
+        'is_admin' => (int)($user['is_admin'] ?? 0)
     ];
 
     http_response_code(200);
     echo json_encode([
         'success' => true,
         'user' => [
-            'id' => $user['id'],
+            'id' => (int)$user['id'],
             'username' => $user['username'],
-            'email' => $user['email']
+            'email' => $user['email'],
+            'is_admin' => (int)($user['is_admin'] ?? 0)
         ]
     ]);
 } catch (PDOException $e) {
     // Database or server error (debug details for development)
     http_response_code(500);
     echo json_encode([
-        'error' => 'Server error',
-        'details' => $e->getMessage()
+        'error' => 'Server error'
     ]);
 }
