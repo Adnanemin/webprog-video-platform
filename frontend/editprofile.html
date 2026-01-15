@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WeTube — Edit Profile</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar__inner">
+      <a class="brand" href="index.html">WeTube</a>
+      <nav class="nav">
+        <a href="index.html" class="nav__link">Home</a>
+        <a href="myaccount.html" class="nav__link">My Account</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1 class="hero__title">Edit Profile</h1>
+      <p class="hero__subtitle">Update your personal information.</p>
+    </section>
+
+    <section class="account-grid">
+      <div class="account-card">
+        <h2 class="account-card__title">Profile Picture</h2>
+
+        <div class="profile__photo">
+          <img
+            id="profileImg"
+            class="profile__img"
+            src="assets/profile-placeholder.png"
+            alt="Profile picture"
+          />
+        </div>
+
+        <input id="photoInput" class="hidden" type="file" accept="image/*" />
+
+        <div class="profile__photoActions">
+          <button class="btn" type="button">Upload new photo</button>
+        </div>
+      </div>
+
+      <div class="account-card">
+        <h2 class="account-card__title">Profile Information</h2>
+
+        <form class="admin-form" novalidate>
+          <label class="label">Name</label>
+          <input class="input" type="text" placeholder="Name" />
+
+          <label class="label">Surname</label>
+          <input class="input" type="text" placeholder="Surname" />
+
+          <label class="label">Username</label>
+          <input class="input" type="text" placeholder="username" />
+
+          <label class="label">Email</label>
+          <input class="input" type="email" placeholder="you@example.com" />
+
+          <div class="admin-actions">
+            <button class="btn" type="submit">Save Changes</button>
+            <a href="myaccount.html" class="btn btn-ghost">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container muted">© WeTube</div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeTube — My Account</title>
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+    <header class="topbar">
+        <div class="container topbar__inner">
+            <a class="brand" href="index.html">WeTube</a>
+            <nav class="nav">
+                <a href="index.html" class="nav__link">Home</a>
+                <a href="welcome.html" class="nav__link">Log out</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h1 class="hero__title">My Account</h1>
+            <p class="hero__subtitle">Your profile info (backend will fill these later).</p>
+        </section>
+
+        <section class="account-grid">
+            <div class="account-card">
+                <div class="profile">
+                    <div class="profile__photo">
+                        <img
+                        id="profileImg"
+                        class="profile__img"
+                        src="assets/profile-placeholder.png"
+                        alt="Profile picture" 
+                        />
+                        <div id="profileFallback" class="profile__fallback hidden">👤</div>
+                    </div>
+
+                    <div class="profile__meta">
+                        <h2 id="fullName" class="profile__name">Name Surname</h2>
+                        <p id="username" class="profile__username muted">@username</p>
+                    </div>
+                </div>
+
+                <div style="margin-top:16px;">
+                    <a href="editprofile.html" class="btn account-btn">
+                        Edit Profile
+                    </a>
+                </div>
+
+                <p class="muted" style="margin:12px 0 0; font-size: 13px;">
+                    When backend finishes, this page can load real user data from session/database.
+                </p>
+            </div>
+
+            <div class="account-card">
+                <h2 class="account-card__title">My Videos</h2>
+                <p class="muted" style="margin:0 0 14px;">
+                    Upload and manage your videos from the admin dashboard.
+                </p>
+
+                <a class="btn account-btn" href="admin.html">Go to Admin Dashboard</a>
+            </div>
+
+            <div class="account-card">
+                <h2 class="account-card__title">Watch History</h2>
+                <p class="muted" style="margin:0 0 14px;">
+                    See the videos you have watched.
+                </p>
+
+                <a class="btn account-btn" href="history.html">View Your Watch History</a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container muted">© WeTube</div>
+    </footer>
+   
+</body>
+</html>

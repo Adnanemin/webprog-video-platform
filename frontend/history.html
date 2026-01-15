@@ -1,0 +1,64 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WeTube — Watch History</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar__inner">
+      <a class="brand" href="index.html">WeTube</a>
+      <nav class="nav">
+        <a href="index.html" class="nav__link">Home</a>
+        <a href="myaccount.html" class="nav__link">My Account</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1 class="hero__title">Watch History</h1>
+      <p class="hero__subtitle">This page will show the videos you watched (backend will fill this later).</p>
+    </section>
+
+    <section class="admin-card" style="margin-bottom: 30px;">
+      <div style="display:flex; justify-content: space-between; align-items: center; gap: 12px;">
+        <h2 class="admin-card__title" style="margin: 0;">Recently watched</h2>
+        <button class="btn btn-ghost" type="button" disabled>Clear history (coming soon)</button>
+      </div>
+
+      <div class="table-wrap" style="margin-top: 12px;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Video</th>
+              <th class="table-right">Action</th>
+            </tr>
+          </thead>
+          <tbody id="historyTbody">
+            <!-- Placeholder row (backend/JS will replace) -->
+            <tr>
+              <td>—</td>
+              <td class="muted">No history yet.</td>
+              <td class="table-right">—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="muted" style="margin: 12px 0 0; font-size: 13px;">
+        Note: When you press play on a video page, the backend can store an entry like (user_id, video_id, watched_at).
+      </p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container muted">© WeTube</div>
+  </footer>
+</body>
+</html>
