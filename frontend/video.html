@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>VideoHub — Watch</title>
+  <title>WeTube — Watch</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -29,17 +29,10 @@
       <p id="videoDesc" class="video-desc"></p>
 
       <div class="video-box">
-        <video id="videoPlayer" class="video-el" controls>
+        <video id="videoPlayer" class="video-el" controls autoplay>
           <source id="videoSource" src="" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
-
-        <div id="demoPlaceholder" class="video-placeholder">
-          <div class="video-placeholder__inner">
-            <p class="video-placeholder__title">Demo mode</p>
-            <p class="video-placeholder__text">The player UI is ready, but no MP4 files have been added yet.</p>
-          </div>
-        </div>
       </div>
       
       <p id="demoNotice" class="notice hidden"></p>
@@ -54,6 +47,7 @@
           class="input textarea"
           placeholder="Add a comment..."
           rows="3"
+          disabled
           ></textarea>
 
           <button class="btn" type="button" disabled>
@@ -73,7 +67,7 @@
             </div>
 
             <p class="comment-text">
-              This is a sample comment. Real comments will be loaded from the database:
+              This is a sample comment. Real comments will be loaded from the database.
             </p>
           </div>
 
@@ -92,10 +86,5 @@
   </footer>
 
   <script src="js/app.js"></script>
-  <script>
-    window.addEventListener("DOMContentLoaded", () => {
-      initVideoPage();
-    });
-  </script>
 </body>
 </html>

@@ -1,27 +1,62 @@
 const USE_FAKE_DATA = true;
 const API_BASE = "../backend/api";
 
-const fakeVideos = [
+const VIDEOS = [
   {
     id: 1,
-    title: "Big Buck Bunny",
-    description: "Test video for the UI and player page.",
-    file_path: "media/bunny.mp4",
-    category: "General"
+    title: "Bird",
+    description: "Bird sitting on a branch.",
+    file_path: "videos/bird.mp4",
+    category: "Nature",
+    thumb_path: "thumbnails/bird.png"
   },
   {
     id: 2,
-    title: "Sintel (Trailer)",
-    description: "Second test video, used to validate search and grid layout.",
-    file_path: "media/sintel.mp4",
-    category: "Trailer"
+    title: "Calming Nature Video",
+    description: "Video of a calming river flowing.",
+    file_path: "videos/nature.mp4",
+    category: "Nature",
+    thumb_path: "thumbnails/nature.png"
   },
   {
     id: 3,
-    title: "Demo Lecture Clip",
-    description: "A placeholder video entry for styling and navigation.",
-    file_path: "media/demo.mp4",
-    category: "Education"
+    title: "Ocean",
+    description: ".",
+    file_path: "videos/ocean.mp4",
+    category: "Nature",
+    thumb_path: "thumbnails/ocean.png"
+  },
+  {
+    id: 4,
+    title: "Snowy Landscape",
+    description: "Video of a snowy landscape.",
+    file_path: "videos/snow.mp4",
+    category: "Nature",
+    thumb_path: "thumbnails/snow.png"
+  },
+  {
+    id: 5,
+    title: "Solar System",
+    description: "A solar system visualization.",
+    file_path: "videos/space.mp4",
+    category: "Science",
+    thumb_path: "thumbnails/space.png"
+  },
+  {
+    id: 6,
+    title: "Cute Turtle",
+    description: "Cute turtle swimming.",
+    file_path: "videos/turtle.mp4",
+    category: "Nature",
+    thumb_path: "thumbnails/turtle.png"
+  },
+  {
+    id: 7,
+    title: "Waves",
+    description: ".",
+    file_path: "videos/waves.mp4",
+    category: "Nature",
+    thumb_path: "thumbnails/waves.png"
   }
 ];
 
@@ -51,14 +86,14 @@ function getQueryParam(name) {
 
 // ---------- Data layer ----------
 async function getVideosList() {
-  if (USE_FAKE_DATA) return fakeVideos;
+  if (USE_FAKE_DATA) return VIDEOS;
   return [];
 }
 
 async function getVideoDetailById(id) {
   const vid = Number(id);
   if (!Number.isFinite(vid)) return null;
-  if (USE_FAKE_DATA) return fakeVideos.find((v) => v.id === vid) || null;
+  if (USE_FAKE_DATA) return VIDEOS.find((v) => v.id === vid) || null;
   return null;
 }
 
@@ -80,6 +115,14 @@ function renderVideosGrid(videos) {
     const card = document.createElement("article");
     card.className = "card";
     card.innerHTML = `
+      <div class="card__thumbWrap">
+        <img
+          class="card__thumb"
+          src="${v.thumb_path || 'thumbnails/placeholder.png'}"
+          alt="${escapeHtml(v.title)} thumbnail"
+          onerror="this.src='thumbnails/placeholder.png';"
+        />
+      </div>
       <div class="card__body">
         <h3 class="card__title">${escapeHtml(v.title)}</h3>
         <p class="card__desc">${escapeHtml(truncate(v.description, 120))}</p>
@@ -142,12 +185,22 @@ async function initVideoPage() {
   if (titleEl) titleEl.textContent = video.title || "Untitled";
   if (descEl) descEl.textContent = video.description || "";
 
-  // Demo mode: hide real player, show placeholder
-  if (playerEl) playerEl.classList.add("hidden");
-  if (placeholderEl) placeholderEl.classList.remove("hidden");
+  // Real mode: show player, hide placeholder/notice
+  if (noticeEl) noticeEl.classList.add("hidden");
+  if (placeholderEl) placeholderEl.classList.add("hidden");
 
-  if (noticeEl) {
-    noticeEl.classList.remove("hidden");
-    noticeEl.textContent = "Demo mode: the player area is shown as a placeholder until we add real MP4 files.";
+  const sourceEl = qs("videoSource");
+  if (sourceEl) {
+    sourceEl.src = video.file_path;
+    if (playerEl) playerEl.load();
+  } else if (playerEl){
+    playerEl.src =video.file_path;
+    playerEl.load();
   }
+  if (playerEl) playerEl.classList.remove("hidden");
 }
+
+window.addEventListener("DOMContentLoaded", () => {
+  if (qs("videosGrid")) initIndexPage();
+  if (qs("videoPlayer") || qs("demoPlaceholder")) initVideoPage();
+});
