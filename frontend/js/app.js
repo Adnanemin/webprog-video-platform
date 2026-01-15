@@ -1,5 +1,3 @@
-// frontend/js/app.js
-
 const USE_FAKE_DATA = true;
 const API_BASE = "../backend/api";
 
