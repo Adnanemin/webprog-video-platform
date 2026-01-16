@@ -13,10 +13,18 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 
 try {
     $stmt = $pdo->query(
-        "SELECT id, title, description, video_path, thumbnail_path, uploaded_at, v.category_id, c.name AS category_name
-         FROM videos
-         JOIN categories c ON c.id = v.category_id
-         ORDER BY uploaded_at DESC"
+        "SELECT 
+            v.id,
+            v.title,
+            v.description,
+            v.video_path,
+            v.thumbnail_path,
+            v.uploaded_at AS created_at,
+            v.category_id,
+            c.name AS category_name
+        FROM videos v
+        LEFT JOIN categories c ON c.id = v.category_id
+        ORDER BY v.uploaded_at DESC"
     );
 
     $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
