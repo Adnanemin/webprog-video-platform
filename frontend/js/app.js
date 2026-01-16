@@ -249,6 +249,14 @@ async function initMyAccountPage() {
   userEl.textContent = "@" + (u.username || "unknown");
 
   if (emailEl) emailEl.textContent = u.email || "";
+
+    // Admin Dashboard button (only admins)
+    const adminSection = qs("adminSection");
+    if (adminSection) {
+      const isAdmin = Number(u.is_admin || 0) === 1;
+      if (isAdmin) adminSection.classList.remove("hidden");
+      else adminSection.classList.add("hidden");
+    }
 }
 
 //edit profile

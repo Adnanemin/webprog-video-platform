@@ -22,76 +22,70 @@
             <h1 class="hero__title">My Account</h1>
             <p class="hero__subtitle">Your Profile Info</p>
         </section>
+        <section class="account-layout">
 
-        <section class="account-grid">
-            <div class="account-card">
-                <div class="profile">
-                    <div class="profile__meta">
-                        <h2 id="fullName" class="profile__name">Name Surname</h2>
-                        <p id="username" class="profile__username muted">@username</p>
-                        <p id="email" class="muted">email@example.com</p>
-                    </div>
-                </div>
+            <!-- LEFT: Profile -->
+            <div class="account-panel">
+                <h2 class="panel-title">Profile</h2>
 
-                <div style="margin-top:16px;">
-                    <a href="editprofile.html" class="btn account-btn">
-                        Edit Profile
-                    </a>
-                </div>
+                <h3 id="fullName" class="profile__name">Name Surname</h3>
+                <p id="username" class="muted">@username</p>
+                <p id="email" class="muted">email@example.com</p>
                 
-            </div>
-
-            <div class="account-card">
-                <h2 class="account-card__title">My Videos</h2>
-                <p class="muted" style="margin:0 0 14px;">
-                    Upload and manage your videos from the admin dashboard. (Coming Soon...)
-                </p>
-
-                <a class="btn account-btn" href="admin.html">Go to Admin Dashboard</a>
-            </div>
-
-            <div class="account-card">
-                <h2 class="account-card__title">Watch History</h2>
-                <p class="muted" style="margin:0 0 14px;">
-                    See the videos you have watched.
-                </p>
-
-                <a class="btn account-btn" href="history.html">View Your Watch History</a>
-            </div>
-
-            <div style="margin-top:12px;">
-                <h2 class="account-card__title">Delete Account</h2>
-                    <button id="deleteAccountBtn" class="btn btn-danger account-btn" type="button">
+                <!-- Delete Account (inside profile box) -->
+                <div style="margin-top:24px;">
+                    <button id="deleteAccountBtn" class="btn btn-danger" type="button">
                         Delete Account
                     </button>
-                    </div>
-                    <br>
 
                     <div id="deleteAccountBox" class="danger-box hidden">
-                    <p class="muted" style="margin:0 0 10px;">
-                        Enter your password to confirm account deletion.
-                    </p>
+                        <p class="muted" style="margin:10px 0;">
+                            Enter your password to confirm account deletion.
+                        </p>
 
-                    <input
-                        id="deleteAccountPassword"
-                        type="password"
-                        class="input"
-                        placeholder="Warning! This action is permanent."
-                        autocomplete="current-password"
-                    />
+                        <input
+                            id="deleteAccountPassword"
+                            type="password"
+                            class="input"
+                            placeholder="Your password"
+                            autocomplete="current-password"
+                        />
 
-                    <p id="deleteAccountMsg" class="muted" style="margin-top:8px;"></p>
+                        <p id="deleteAccountMsg" class="muted" style="margin-top:8px;"></p>
 
-                    <div style="margin-top:10px; display:flex; gap:10px;">
-                        <button id="confirmDeleteAccountBtn" class="btn btn-danger" type="button" style="background:red !important; color:white !important;" >
-                        Permanently Delete Account
-                        </button>
-                        <button id="cancelDeleteAccountBtn" class="btn btn-ghost" type="button">
-                        Cancel
-                        </button>
+                        <div style="margin-top:10px; display:flex; gap:10px;">
+                            <button id="confirmDeleteAccountBtn" class="btn btn-danger" type="button">
+                                Permanently Delete Account
+                            </button>
+                            <button id="cancelDeleteAccountBtn" class="btn btn-ghost" type="button">
+                                Cancel
+                            </button>
+                        </div>
                     </div>
-                    </div> 
-        </section>
+                </div>
+
+            </div>
+
+            <!-- RIGHT: Actions -->
+            <div class="account-panel">
+                <h2 class="panel-title">Actions</h2>
+
+                <a href="editprofile.html" class="btn account-btn">Edit Profile</a>
+                <a href="accountdashboard.html" class="btn account-btn">My Videos</a>
+                <a href="history.html" class="btn account-btn">Watch History</a>
+
+                <!-- Admin only -->
+                <div id="adminSection" class="admin-section hidden">
+                <h3 class="admin-title">Admin</h3>
+                <a href="admin.html" class="btn btn-ghost account-btn">
+                    Admin Dashboard
+                </a>
+                </div>
+            </div>
+
+            </section>
+
+       
     </main>
 
     <footer class="footer">
