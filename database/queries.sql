@@ -2,20 +2,31 @@ USE video_platform;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
--- Users
+-- -------------------------
+-- USERS
+-- -------------------------
 INSERT INTO users (first_name, last_name, username, email, password, is_admin) VALUES
 ('Adnan', 'Nalcaci', 'adnan', 'adnan@mail.com', '$2y$10$7FYce8/UEbtVbBrLR9MjBOelXNdp1jeAYPEganF41iffszJ4xXB7O', 1),
 ('Nazli', 'Coskun', 'nazli', 'nazli@mail.com', '$2y$10$7FYce8/UEbtVbBrLR9MjBOelXNdp1jeAYPEganF41iffszJ4xXB7O', 1),
 ('Test', 'User', 'testuser', 'test@mail.com', '$2y$10$7FYce8/UEbtVbBrLR9MjBOelXNdp1jeAYPEganF41iffszJ4xXB7O', 0);
 
+-- -------------------------
+-- CATEGORIES
+-- -------------------------
 
--- Nature and Education
+-- Nature
 INSERT INTO categories (name)
 SELECT 'Nature' WHERE NOT EXISTS (SELECT 1 FROM categories WHERE name='Nature');
 
+-- Fun
+INSERT INTO categories (name)
+SELECT 'Fun' WHERE NOT EXISTS (SELECT 1 FROM categories WHERE name='Fun');
+
+-- Education
 INSERT INTO categories (name)
 SELECT 'Education' WHERE NOT EXISTS (SELECT 1 FROM categories WHERE name='Education');
 
+-- -------------------------
 -- VIDEOS
 -- -------------------------
 
@@ -110,6 +121,7 @@ FROM users u, categories c
 WHERE u.username = 'testuser' AND c.name = 'Nature'
 LIMIT 1;
 
+-- -------------------------
 -- COMMENTS
 -- -------------------------
 
