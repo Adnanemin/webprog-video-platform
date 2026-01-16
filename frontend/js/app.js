@@ -61,65 +61,6 @@ function normalizeVideoFromBackend(v) {
   };
 }
 
-const VIDEOS = [
-  {
-    id: 1,
-    title: "Bird",
-    description: "Bird sitting on a branch.",
-    file_path: "videos/bird.mp4",
-    category: "Nature",
-    thumb_path: "thumbnails/bird.png"
-  },
-  {
-    id: 2,
-    title: "Calming Nature Video",
-    description: "Video of a calming river flowing.",
-    file_path: "videos/nature.mp4",
-    category: "Nature",
-    thumb_path: "thumbnails/nature.png"
-  },
-  {
-    id: 3,
-    title: "Ocean",
-    description: ".",
-    file_path: "videos/ocean.mp4",
-    category: "Nature",
-    thumb_path: "thumbnails/ocean.png"
-  },
-  {
-    id: 4,
-    title: "Snowy Landscape",
-    description: "Video of a snowy landscape.",
-    file_path: "videos/snow.mp4",
-    category: "Nature",
-    thumb_path: "thumbnails/snow.png"
-  },
-  {
-    id: 5,
-    title: "Solar System",
-    description: "A solar system visualization.",
-    file_path: "videos/space.mp4",
-    category: "Science",
-    thumb_path: "thumbnails/space.png"
-  },
-  {
-    id: 6,
-    title: "Cute Turtle",
-    description: "Cute turtle swimming.",
-    file_path: "videos/turtle.mp4",
-    category: "Nature",
-    thumb_path: "thumbnails/turtle.png"
-  },
-  {
-    id: 7,
-    title: "Waves",
-    description: ".",
-    file_path: "videos/waves.mp4",
-    category: "Nature",
-    thumb_path: "thumbnails/waves.png"
-  }
-];
-
 // ---------- Watch history (frontend demo using localStorage) ----------
 const HISTORY_KEY = "wetube_watch_history";
 const HISTORY_LIMIT = 50;
@@ -196,13 +137,13 @@ function getQueryParam(name) {
 
 // ---------- Data layer ----------
 async function getVideosList(query = "") {
-  if (USE_FAKE_DATA) return VIDEOS;
+  if (USE_FAKE_DATA) return [];
 
   // Folder-based listing endpoint (backend scans frontend/videos + frontend/thumbnails)
-  const { ok, json } = await apiGet("media_list.php");
+  const { ok, json } = await apiGet("videos_list.php", { q: query });
 
   const list = (json && Array.isArray(json.videos) && json.videos) || null;
-  if (!ok || !list) return VIDEOS; // fallback
+  if (!ok || !list) return []; // fallback
 
   const normalized = list.map(normalizeVideoFromBackend).filter(Boolean);
   const q = String(query || "").trim().toLowerCase();
@@ -220,7 +161,7 @@ async function getVideoDetailById(id) {
   const vid = Number(id);
   if (!Number.isFinite(vid)) return null;
 
-  if (USE_FAKE_DATA) return VIDEOS.find((v) => v.id === vid) || null;
+  if (USE_FAKE_DATA) return null;
 
   // Try backend detail endpoint
   const { ok, json } = await apiGet("video_detail.php", { id: String(vid) });
