@@ -8,28 +8,44 @@ const API_BASE = window.location.pathname.includes("/webprog-video-platform/")
 
 // ---------- API helpers ----------
 async function apiGet(path, params = {}) {
-  const url = new URL(`${API_BASE}/${path}`, window.location.href);
+  // prevent accidental leading slashes creating // in URLs
+  const cleanPath = String(path).replace(/^\/+/, "");
+  const url = new URL(`${API_BASE}/${cleanPath}`, window.location.href);
+
   Object.entries(params).forEach(([k, v]) => {
     if (v !== undefined && v !== null && String(v).length) url.searchParams.set(k, v);
   });
 
   const res = await fetch(url.toString(), { credentials: "include" });
+
+  // If backend returns non-JSON (e.g., HTML error), keep json = {}
   const json = await res.json().catch(() => ({}));
   return { ok: res.ok, status: res.status, json };
 }
 
 async function apiPostForm(path, formObj = {}) {
+  const cleanPath = String(path).replace(/^\/+/, "");
   const body = new URLSearchParams();
   Object.entries(formObj).forEach(([k, v]) => body.set(k, v));
 
-  const res = await fetch(`${API_BASE}/${path}`, {
+  const res = await fetch(`${API_BASE}/${cleanPath}`, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: body.toString(),
     credentials: "include"
   });
 
+  // If backend returns non-JSON (e.g., PHP fatal -> HTML), keep json = {}
   const json = await res.json().catch(() => ({}));
+
+  // Helpful debug if backend is broken and not returning JSON
+  if (!res.ok && (!json || Object.keys(json).length === 0)) {
+    try {
+      const txt = await res.clone().text();
+      console.warn("Non-JSON error response:", res.status, txt.slice(0, 300));
+    } catch {}
+  }
+
   return { ok: res.ok, status: res.status, json };
 }
 
@@ -39,7 +55,7 @@ function normalizeVideoFromBackend(v) {
     id: Number(v.id),
     title: v.title ?? "Untitled",
     description: v.description ?? "",
-    file_path: v.video_path ?? v.file_path ?? "",
+    file_path: v.video_path ?? v.file_path ?? v.video_url ?? v.path ?? "",
     category: v.category_name ?? v.category ?? "Uncategorized",
     thumb_path: v.thumbnail_path ?? v.thumb_path ?? "thumbnails/placeholder.png"
   };
@@ -140,7 +156,7 @@ async function addToHistory(video) {
   // Backend logging (requires login; guests will get 403)
   if (!USE_FAKE_DATA) {
     const r = await apiPostForm("history_add.php", { video_id: String(video.id) });
-    // Guests/not-logged-in will get 403; ignore that silently
+    // Guests/not-logged-in will get 403/401; ignore silently
     if (!r.ok && r.status !== 403 && r.status !== 401) {
       console.warn("history_add failed", r.status, r.json);
     }
@@ -271,24 +287,13 @@ async function initIndexPage() {
   searchInput.addEventListener("input", async () => {
     const q = searchInput.value.trim();
 
-    if (!USE_FAKE_DATA) {
-      allVideos = await getVideosList(q);
-      renderVideosGrid(allVideos);
-      return;
-    }
-
-    const qLower = q.toLowerCase();
-    const filtered = allVideos.filter(
-      (v) =>
-        (v.title || "").toLowerCase().includes(qLower) ||
-        (v.description || "").toLowerCase().includes(qLower) ||
-        (v.category || "").toLowerCase().includes(qLower)
-    );
-    renderVideosGrid(filtered);
+    // Always filter via getVideosList(q) (it handles both modes)
+    allVideos = await getVideosList(q);
+    renderVideosGrid(allVideos);
   });
 }
 
-// ---------- Page init: video.html (Option A demo mode) ----------
+// ---------- Page init: video.html ----------
 async function initVideoPage() {
   const id = getQueryParam("id");
 
@@ -325,13 +330,13 @@ async function initVideoPage() {
   if (sourceEl) {
     sourceEl.src = video.file_path;
     if (playerEl) playerEl.load();
-  } else if (playerEl){
-    playerEl.src =video.file_path;
+  } else if (playerEl) {
+    playerEl.src = video.file_path;
     playerEl.load();
   }
   if (playerEl) playerEl.classList.remove("hidden");
 
-  // Record watch history (demo)
+  // Record watch history
   await addToHistory(video);
 }
 
@@ -394,11 +399,10 @@ async function initHistoryPage() {
 
 // ---------- Page init: login.html ----------
 function initLoginPage() {
-  // Prefer a specific form id, but fall back to a form that has inputs named login/password
-  const form = qs("loginForm") || document.querySelector("form");
+  // SAFER: only bind if the expected form exists
+  const form = qs("loginForm");
   if (!form) return;
 
-  // Accept both naming styles from the frontend: login or username
   const loginInput =
     form.querySelector("input[name='login']") ||
     form.querySelector("input[name='username']") ||
@@ -426,11 +430,9 @@ function initLoginPage() {
     const r = await apiPostForm("login.php", { login, password });
 
     if (r.ok && r.json && r.json.success) {
-      if (msg) {
-        msg.textContent = "Logged in! Redirecting…";
-      }
-      // Go back to home (or you can change to myaccount.html)
-      window.location.href = "login.html";
+      if (msg) msg.textContent = "Logged in! Redirecting…";
+      // FIX: go to home (or myaccount.html)
+      window.location.href = "index.html";
       return;
     }
 
@@ -438,17 +440,18 @@ function initLoginPage() {
       ? r.json.error
       : `Login failed (HTTP ${r.status})`;
 
-    // Helpful debug info during development
     console.warn("login failed", r.status, r.json);
 
+    // FIX: show error to user
+    if (msg) msg.textContent = err;
+    else alert(err);
   });
 }
 
-// ---------- Logout helper (used by navbar button/link if present) ----------
+// ---------- Logout helper ----------
 async function doLogout() {
   const r = await apiPostForm("logout.php", {});
   if (r.ok && r.json && r.json.success) {
-    // Keep local history; just redirect
     window.location.href = "welcome.html";
     return;
   }
@@ -456,7 +459,6 @@ async function doLogout() {
 }
 
 function initLogoutBindings() {
-  // If you have a logout button/link with id="logoutBtn", wire it.
   const btn = qs("logoutBtn");
   if (btn) {
     btn.addEventListener("click", async (e) => {
@@ -465,7 +467,6 @@ function initLogoutBindings() {
     });
   }
 
-  // If you use an <a href="#" data-logout>Logout</a>, wire that too.
   const link = document.querySelector("[data-logout]");
   if (link) {
     link.addEventListener("click", async (e) => {
@@ -475,13 +476,12 @@ function initLogoutBindings() {
   }
 }
 
-// Register page
-
+// ---------- Register page ----------
 function initRegisterPage() {
-  const form = qs("registerForm") || document.querySelector("form");
+  // SAFER: only bind if the expected form exists
+  const form = qs("registerForm");
   if (!form) return;
 
-  // MUST match register.php
   const firstNameInput =
     form.querySelector("input[name='first_name']") ||
     form.querySelector("input[name='name']");
@@ -498,7 +498,6 @@ function initRegisterPage() {
     form.querySelector("input[name='confirmPassword']") ||
     form.querySelector("input[name='confirm']");
 
-  // If required fields are missing, don't attach handler
   if (!firstNameInput || !lastNameInput || !userInput || !emailInput || !passInput || !confirmInput) return;
 
   form.addEventListener("submit", async (e) => {
@@ -529,6 +528,7 @@ function initRegisterPage() {
 
     const err = (r.json && r.json.error) ? r.json.error : `Register failed (HTTP ${r.status})`;
     console.warn("register failed", r.status, r.json);
+
     if (msg) msg.textContent = err;
     else alert(err);
   });
@@ -544,4 +544,3 @@ window.addEventListener("DOMContentLoaded", () => {
   initLogoutBindings();
   initRegisterPage();
 });
-

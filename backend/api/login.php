@@ -103,11 +103,11 @@ try {
     }
 
     // Verify hashed password
-    //if (!password_verify($password, $user['password'])) {
-    //    http_response_code(401);
-    //    echo json_encode(['error' => 'Invalid username/email or password!']);
-    //    exit;
-    //}
+    if (!password_verify($password, $user['password'])) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Invalid username/email or password!']);
+        exit;
+    }
 
     // Login successful
 
