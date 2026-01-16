@@ -12,7 +12,7 @@
             <a class="brand" href="index.html">WeTube</a>
             <nav class="nav">
                 <a href="index.html" class="nav__link">Home</a>
-                <a href="welcome.html" class="nav__link">Log out</a>
+                <a href="#" id="logoutBtn" class="nav__link">Log out</a>
             </nav>
         </div>
     </header>
@@ -26,20 +26,10 @@
         <section class="account-grid">
             <div class="account-card">
                 <div class="profile">
-                    <div class="profile__photo">
-                        <img
-                        id="profileImg"
-                        class="profile__img"
-                        src="defaultpfp.jpg"
-                        alt="Profile picture"
-                        width="150" 
-                        />
-                        <div id="profileFallback" class="profile__fallback hidden">👤</div>
-                    </div>
-
                     <div class="profile__meta">
                         <h2 id="fullName" class="profile__name">Name Surname</h2>
                         <p id="username" class="profile__username muted">@username</p>
+                        <p id="email" class="muted">email@example.com</p>
                     </div>
                 </div>
 
@@ -77,6 +67,7 @@
     <footer class="footer">
         <div class="container muted">© WeTube</div>
     </footer>
-   
+
+<script src="js/app.js?v=3"></script>
 </body>
 </html>

@@ -217,6 +217,40 @@ function renderVideosGrid(videos) {
   }
 }
 
+// myaccount
+async function getMe() {
+  const { ok, status, json } = await apiGet("me.php");
+  // your me.php returns { logged_in: true/false, user: ... }
+  if (!ok) return { ok: false, status, user: null, json };
+
+  const loggedIn = !!json.logged_in;
+  return { ok: true, status, loggedIn, user: json.user || null };
+}
+
+async function initMyAccountPage() {
+  const nameEl = qs("fullName");     // <h2 id="fullName">
+  const userEl = qs("username");     // <p id="username">
+  const emailEl = qs("email");       // <p id="email">  (add this in HTML)
+  if (!nameEl || !userEl) return;    // not on myaccount page
+
+  const res = await getMe();
+
+  if (!res.ok || !res.loggedIn || !res.user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  const u = res.user;
+
+  // Option B: these should exist in session now
+  const fullName = `${u.first_name || ""} ${u.last_name || ""}`.trim();
+  nameEl.textContent = fullName || "User";
+  userEl.textContent = "@" + (u.username || "unknown");
+
+  if (emailEl) emailEl.textContent = u.email || "";
+}
+
+
 // ---------- Page init: index.html ----------
 async function initIndexPage() {
   const searchInput = qs("searchInput");
@@ -338,6 +372,56 @@ async function initHistoryPage() {
   }
 }
 
+//clear all history
+
+async function clearHistoryBackend() {
+  // optional endpoint; if not implemented, just returns not ok
+  return await apiPostForm("history_delete.php", { clear_all: "1" });
+}
+
+function initClearHistoryButton() {
+  const btn = qs("clearHistoryBtn");
+  if (!btn) return;
+
+  btn.addEventListener("click", async () => {
+    const okConfirm = confirm("Clear your watch history? This cannot be undone.");
+    if (!okConfirm) return;
+
+    // 1) Always clear guest/local history
+    localStorage.removeItem(HISTORY_KEY);
+
+    // 2) If logged in, also clear DB history
+    // Use your existing "me.php" (logged_in true/false)
+    const me = await apiGet("me.php");
+    const loggedIn = !!(me.ok && me.json && me.json.logged_in);
+
+    if (loggedIn) {
+      const r = await clearHistoryBackend();
+      if (!r.ok) {
+        // Not fatal: local history is already cleared
+        console.warn("history_delete failed", r.status, r.json);
+      }
+    }
+
+    // 3) Re-render the table
+    // simplest: just call initHistoryPage again (or call your render function)
+    if (typeof initHistoryPage === "function") {
+      initHistoryPage();
+    } else {
+      // fallback: clear table UI directly if needed
+      const tbody = qs("historyTbody");
+      if (tbody) {
+        tbody.innerHTML = `
+          <tr>
+            <td>—</td>
+            <td class="muted">No history yet.</td>
+            <td class="table-right">—</td>
+          </tr>`;
+      }
+    }
+  });
+}
+
 // ---------- Page init: login.html ----------
 function initLoginPage() {
   // SAFER: only bind if the expected form exists
@@ -393,6 +477,10 @@ function initLoginPage() {
 async function doLogout() {
   const r = await apiPostForm("logout.php", {});
   if (r.ok && r.json && r.json.success) {
+    // cler guest/local history
+
+    localStorage.removeItem(HISTORY_KEY);
+
     window.location.href = "welcome.html";
     return;
   }
@@ -484,4 +572,7 @@ window.addEventListener("DOMContentLoaded", () => {
   initLoginPage();
   initLogoutBindings();
   initRegisterPage();
+  initClearHistoryButton();
+  if (qs("fullName") && qs("username")) initMyAccountPage();
+
 });
