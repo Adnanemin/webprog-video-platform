@@ -20,34 +20,27 @@
   <main class="container">
     <section class="hero">
         <h1 class="hero__title">Admin Dashboard</h1>
-        <p class="hero__subtitle">Demo mode, later this page will manage videos from the database.</p>
+        <p class="hero__subtitle">This page removes users and videos from the database.</p>
     </section>
 
     <section class="admin-grid">
         <div class="admin-card">
-            <h2 class="admin-card__title">Add / Edit video (Coming Soon...)</h2>
+            <h2 class="admin-card__title">Users</h2>
 
-            <form id="videoForm" class="admin-form" novalidate>
-
-                <input id="videoId" type="hidden" />
-
-                <label class="label" for="title">Title</label>
-                <input id="title" class="input" type="text" placeholder="Video Title" disabled />
-
-                <label class="label" for="description">Description</label>
-                <input id="description" class="input textarea" placeholder="Short description" disabled/>
-
-                <label class="label" for="category">Category</label>
-                <input id="category" class="input" type="text" placeholder="e.g. General" disabled />
-
-                <label class="label" for="filePath">File Path (later from uploads)</label>
-                <input id="filePath" class="input" type="text" placeholder="uploads/video.mp4" disabled />
-
-                <div class="admin-actions">
-                    <button class="btn" type="submit" disabled>Save</button>
-                    <button id="cancelEditBtn" class="btn btn-ghost" type="button" disabled>Cancel</button>
-                </div>
-            </form>
+            <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Name</th>
+                            <th>Surname</th>
+                            <th class="table-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTbody">
+                        
+                    </tbody>
+                </table>
+            
 
             <p id="adminMsg" class="notice hidden"></p>
         </div>

@@ -259,6 +259,119 @@ async function initMyAccountPage() {
     }
 }
 
+async function initAdminPage() {
+  const usersTbody = qs("usersTbody");
+  const videosTbody = qs("videosTbody");
+  const msgEl = qs("adminMsg");
+  const emptyEl = qs("adminEmpty");
+
+  // not on admin.html
+  if (!usersTbody && !videosTbody) return;
+
+  const setMsg = (t) => {
+    if (!msgEl) return;
+    msgEl.textContent = t || "";
+    if (t) msgEl.classList.remove("hidden");
+    else msgEl.classList.add("hidden");
+  };
+
+  // Gate: must be admin
+  const me = await apiGet("me.php");
+  if (!me.ok || !me.json || !me.json.logged_in) {
+    window.location.href = "login.html";
+    return;
+  }
+  const u = me.json.user || {};
+  if (Number(u.is_admin || 0) !== 1) {
+    window.location.href = "myaccount.html";
+    return;
+  }
+
+  // ---- YOU MUST HAVE THESE 2 LIST ENDPOINTS ----
+  // If your friend named them differently, change these two lines.
+  async function loadUsers() {
+    const r = await apiGet("users_list.php");
+    if (!r.ok || !r.json || !Array.isArray(r.json.users)) {
+      setMsg((r.json && r.json.error) ? r.json.error : `Users load failed (HTTP ${r.status})`);
+      usersTbody.innerHTML = "";
+      return;
+    }
+
+    usersTbody.innerHTML = r.json.users.map(us => `
+      <tr>
+        <td>@${escapeHtml(us.username || "")}</td>
+        <td>${escapeHtml(us.first_name || "")}</td>
+        <td>${escapeHtml(us.last_name || "")}</td>
+        <td class="table-right">
+          <button class="btn btn-danger" data-del-user="${us.id}">Delete</button>
+        </td>
+      </tr>
+    `).join("");
+
+    usersTbody.querySelectorAll("[data-del-user]").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const userId = btn.getAttribute("data-del-user");
+        if (!confirm("Delete this user? This cannot be undone.")) return;
+
+        const del = await apiPostForm("admin/delete_user.php", { user_id: userId });
+        if (del.ok && del.json && del.json.success) {
+          setMsg("User deleted.");
+          await loadUsers();
+          return;
+        }
+        setMsg((del.json && del.json.error) ? del.json.error : `Delete failed (HTTP ${del.status})`);
+      });
+    });
+  }
+
+  async function loadVideos() {
+    const r = await apiGet("videos_list.php");
+    if (!r.ok || !r.json || !Array.isArray(r.json.videos)) {
+      setMsg((r.json && r.json.error) ? r.json.error : `Videos load failed (HTTP ${r.status})`);
+      videosTbody.innerHTML = "";
+      if (emptyEl) emptyEl.classList.remove("hidden");
+      return;
+    }
+
+    const vids = r.json.videos;
+    if (emptyEl) {
+      if (vids.length === 0) emptyEl.classList.remove("hidden");
+      else emptyEl.classList.add("hidden");
+    }
+
+    // NOTE: your current videos_list.php may not return category_name.
+    videosTbody.innerHTML = vids.map(v => `
+      <tr>
+        <td>${escapeHtml(String(v.id))}</td>
+        <td>${escapeHtml(v.title || "")}</td>
+        <td>${escapeHtml(v.category_name || "Uncategorized")}</td>
+        <td class="table-right">
+          <button class="btn btn-danger" data-del-video="${v.id}">Delete</button>
+        </td>
+      </tr>
+    `).join("");
+
+    videosTbody.querySelectorAll("[data-del-video]").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const videoId = btn.getAttribute("data-del-video");
+        if (!confirm("Delete this video? This cannot be undone.")) return;
+
+        const del = await apiPostForm("admin/delete_video.php", { video_id: videoId });
+        if (del.ok && del.json && del.json.success) {
+          setMsg("Video deleted.");
+          await loadVideos();
+          return;
+        }
+        setMsg((del.json && del.json.error) ? del.json.error : `Delete failed (HTTP ${del.status})`);
+      });
+    });
+  }
+
+  setMsg("");
+  await loadUsers();
+  await loadVideos();
+}
+
 //edit profile
 async function initEditProfilePage() {
   const form = qs("editProfileForm");
@@ -798,5 +911,6 @@ window.addEventListener("DOMContentLoaded", () => {
   if (qs("fullName") && qs("username")) initMyAccountPage();
   initEditProfilePage();
   initDeleteAccountButton();
+  if (qs("usersTbody") || qs("videosTbody")) initAdminPage();
 
 });
