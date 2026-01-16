@@ -84,7 +84,7 @@ if ($login === '' || $password === '') {
 try {
     //Fetch user by username or email
     $stmt = $pdo->prepare(
-        "SELECT id, username, email, password, is_admin
+        "SELECT id, first_name, last_name, username, email, password, is_admin
          FROM users
          WHERE email = :login_email OR username = :login_username
          LIMIT 1"
