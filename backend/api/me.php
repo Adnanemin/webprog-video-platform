@@ -24,6 +24,7 @@ echo json_encode([
         'first_name' => $_SESSION['user']['first_name'] ?? null,
         'last_name' => $_SESSION['user']['last_name'] ?? null,
         'username' => $_SESSION['user']['username'] ?? null,
-        'email' => $_SESSION['user']['email'] ?? null
+        'email' => $_SESSION['user']['email'] ?? null,
+        'is_admin' => (int)($_SESSION['user']['is_admin'] ?? 0)
     ]
 ]);
