@@ -47,7 +47,7 @@ try {
             c.name AS category_name
          FROM videos v
          JOIN users u ON u.id = v.user_id
-         JOIN categories c ON c.id = v.category_id
+         LEFT JOIN categories c ON c.id = v.category_id
          WHERE v.id = :id
          LIMIT 1'
     );
