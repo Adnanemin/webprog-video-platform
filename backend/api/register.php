@@ -33,6 +33,12 @@ if ($password !== $confirmPassword) {
     exit;
 }
 
+if (strlen($password) < 6) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Password must be at least 6 characters long']);
+    exit;
+}
+
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     http_response_code(400);
     echo json_encode(['error' => 'Invalid email']);
