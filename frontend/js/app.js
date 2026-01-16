@@ -370,6 +370,8 @@ async function initVideoPage() {
 
   // Record watch history
   await addToHistory(video);
+
+  await initCommentsForVideoPage(video.id);
 }
 
 // ---------- Page init: history.html ----------
@@ -476,6 +478,112 @@ function initClearHistoryButton() {
           </tr>`;
       }
     }
+  });
+}
+
+// -------------------------------
+// Comments
+// -------------------------------
+async function fetchComments(videoId) {
+  return await apiGet("comments.php", { video_id: String(videoId) });
+}
+
+async function createComment(videoId, content) {
+  return await apiPostForm("comment_create.php", {
+    video_id: String(videoId),
+    content: content
+  });
+}
+
+function renderComments(listEl, comments) {
+  if (!listEl) return;
+
+  if (!Array.isArray(comments) || comments.length === 0) {
+    listEl.innerHTML = `<p class="muted" style="margin-top:12px;">No comments yet.</p>`;
+    return;
+  }
+
+  listEl.innerHTML = comments
+    .map((c) => {
+      const username = c.username || "user";
+      const date = c.created_at || "";
+      const text = c.content || "";
+
+      return `
+        <div class="comment">
+          <div class="comment-header">
+            <span class="comment-user">@${escapeHtml(username)}</span>
+            <span class="comment-date muted">${escapeHtml(date)}</span>
+          </div>
+          <p class="comment-text">${escapeHtml(text)}</p>
+        </div>
+      `;
+    })
+    .join("");
+}
+
+async function initCommentsForVideoPage(videoId) {
+  const listEl = qs("commentsList");
+  const textEl = qs("commentText");
+  const btnEl = qs("postCommentBtn");
+  const hintEl = qs("commentHint");
+
+  if (!listEl || !textEl || !btnEl) return;
+
+  // 1) Load comments
+  const res = await fetchComments(videoId);
+  if (res.ok && res.json && Array.isArray(res.json.comments)) {
+    renderComments(listEl, res.json.comments);
+  } else {
+    console.warn("comments.php failed", res.status, res.json);
+    renderComments(listEl, []);
+  }
+
+  // 2) Enable comment box only if logged in
+  const me = await apiGet("me.php");
+  const loggedIn = !!(me.ok && me.json && me.json.logged_in);
+
+  if (!loggedIn) {
+    textEl.disabled = true;
+    btnEl.disabled = true;
+    if (hintEl) hintEl.textContent = "Login required to comment.";
+    return;
+  }
+
+  textEl.disabled = false;
+  btnEl.disabled = false;
+  if (hintEl) hintEl.textContent = "";
+
+  // 3) Post comment
+  btnEl.addEventListener("click", async () => {
+    const content = (textEl.value || "").trim();
+    if (!content) {
+      if (hintEl) hintEl.textContent = "Write a comment first.";
+      return;
+    }
+
+    btnEl.disabled = true;
+    if (hintEl) hintEl.textContent = "Posting…";
+
+    const r = await createComment(videoId, content);
+
+    if (r.ok && r.json && r.json.success) {
+      textEl.value = "";
+      if (hintEl) hintEl.textContent = "";
+
+      // reload comments after posting
+      const again = await fetchComments(videoId);
+      if (again.ok && again.json && Array.isArray(again.json.comments)) {
+        renderComments(listEl, again.json.comments);
+      }
+      btnEl.disabled = false;
+      return;
+    }
+
+    const err = (r.json && r.json.error) ? r.json.error : `Post failed (HTTP ${r.status})`;
+    console.warn("comment_create.php failed", r.status, r.json);
+    if (hintEl) hintEl.textContent = err;
+    btnEl.disabled = false;
   });
 }
 

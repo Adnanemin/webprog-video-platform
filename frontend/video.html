@@ -45,37 +45,20 @@
 
         <div class="comment-form">
           <textarea
-          class="input textarea"
-          placeholder="Add a comment..."
-          rows="3"
-          disabled
+            id="commentText"
+            class="input textarea"
+            placeholder="Add a comment..."
+            rows="3"
           ></textarea>
 
-          <button class="btn" type="button" disabled>
+          <button id="postCommentBtn" class="btn" type="button">
             Post comment
           </button>
 
-          <p class="muted" style="margin-top:6px; font-size:13px;">
-            Login required to comment.
-          </p>
+          <p id="commentHint" class="muted" style="margin-top:6px; font-size:13px;"></p>
         </div>
 
-       <div class="comments-list">
-          <div class="comment">
-            <div class="comment-header">
-              <span class="comment-user">@username</span>
-              <span class="comment-date muted">15-01-2026</span>
-            </div>
-
-            <p class="comment-text">
-              This is a sample comment. Real comments will be loaded from the database.
-            </p>
-          </div>
-
-          <p class="muted" style="margin-top:12px;">
-            No more comments yet.
-          </p>
-        </div>
+        <div id="commentsList" class="comments-list"></div>
 
       </div>
     </section>
