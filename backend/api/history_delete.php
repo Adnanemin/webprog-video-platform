@@ -15,7 +15,7 @@ $userId = $_SESSION['user']['id'];
 
 // Clear all history
 if (isset($_POST['clear_all'])) {
-    $stmt = $pdo->prepare("DELETE FROM history WHERE user_id = ?");
+    $stmt = $pdo->prepare("DELETE FROM watch_history WHERE user_id = ?");
     $stmt->execute([$userId]);
 
     echo json_encode(['success' => true]);
@@ -31,7 +31,7 @@ if (!$videoId) {
 }
 
 $stmt = $pdo->prepare(
-    "DELETE FROM history WHERE user_id = ? AND video_id = ?"
+    "DELETE FROM watch_history WHERE user_id = ? AND video_id = ?"
 );
 $stmt->execute([$userId, $videoId]);
 
