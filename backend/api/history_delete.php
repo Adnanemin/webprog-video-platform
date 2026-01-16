@@ -9,7 +9,7 @@ if (!isset($_SESSION['user'])) {
     exit;
 }
 
-require __DIR__ . '/../db.php';
+require __DIR__ . '/../config/db.php';
 
 $userId = $_SESSION['user']['id'];
 
