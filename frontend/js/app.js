@@ -430,8 +430,15 @@ function initLoginPage() {
     const r = await apiPostForm("login.php", { login, password });
 
     if (r.ok && r.json && r.json.success) {
+<<<<<<< HEAD
       if (msg) msg.textContent = "Logged in! Redirecting…";
       // FIX: go to home (or myaccount.html)
+=======
+      if (msg) {
+        msg.textContent = "Logged in! Redirecting…";
+      }
+      // Go back to home (or you can change to myaccount.html)
+>>>>>>> 0371e7b (Debugging Js)
       window.location.href = "index.html";
       return;
     }
@@ -442,9 +449,15 @@ function initLoginPage() {
 
     console.warn("login failed", r.status, r.json);
 
+<<<<<<< HEAD
     // FIX: show error to user
     if (msg) msg.textContent = err;
     else alert(err);
+=======
+    if (msg) msg.textContent = err;
+    else alert(err);
+
+>>>>>>> 0371e7b (Debugging Js)
   });
 }
 
