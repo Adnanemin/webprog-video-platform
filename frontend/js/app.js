@@ -2,7 +2,7 @@ const USE_FAKE_DATA = false; // use backend when available (fallback to local if
 
 // Frontend is served from the VirtualHost (DocumentRoot = frontend/).
 // Backend API is exposed at: http://webprog-video-platform.local/api/...
-const API_BASE = "/api";
+const API_BASE = "/webprog-video-platform/backend/api";
 
 // ---------- API helpers ----------
 async function apiGet(path, params = {}) {
@@ -484,25 +484,37 @@ function initRegisterPage() {
   const form = qs("registerForm") || document.querySelector("form");
   if (!form) return;
 
-  // Grab inputs by name (must match backend)
-  const nameInput = form.querySelector("input[name='name']") || form.querySelector("input[name='name_surname']");
+  // MUST match register.php
+  const firstNameInput =
+    form.querySelector("input[name='first_name']") ||
+    form.querySelector("input[name='name']");
+
+  const lastNameInput =
+    form.querySelector("input[name='last_name']") ||
+    form.querySelector("input[name='surname']");
+
   const userInput = form.querySelector("input[name='username']");
   const emailInput = form.querySelector("input[name='email']");
   const passInput = form.querySelector("input[name='password']");
+  const confirmInput =
+    form.querySelector("input[name='confirm_password']") ||
+    form.querySelector("input[name='confirmPassword']") ||
+    form.querySelector("input[name='confirm']");
 
   // If required fields are missing, don't attach handler
-  if (!userInput || !emailInput || !passInput) return;
+  if (!firstNameInput || !lastNameInput || !userInput || !emailInput || !passInput || !confirmInput) return;
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const payload = {
+      first_name: firstNameInput.value.trim(),
+      last_name: lastNameInput.value.trim(),
       username: userInput.value.trim(),
       email: emailInput.value.trim(),
-      password: passInput.value
+      password: passInput.value,
+      confirm_password: confirmInput.value
     };
-
-    if (nameInput) payload.name = nameInput.value.trim(); // or name_surname depending on backend
 
     const msg = qs("registerMsg");
     if (msg) {
@@ -512,13 +524,14 @@ function initRegisterPage() {
 
     const r = await apiPostForm("register.php", payload);
 
-    if (r.ok && r.json && (r.json.success === true || r.json.ok === true)) {
+    if (r.ok && r.json && r.json.success) {
       if (msg) msg.textContent = "Account created! Redirecting to login…";
       window.location.href = "login.html";
       return;
     }
 
-    const err = (r.json && r.json.error) ? r.json.error : "Register failed";
+    const err = (r.json && r.json.error) ? r.json.error : `Register failed (HTTP ${r.status})`;
+    console.warn("register failed", r.status, r.json);
     if (msg) msg.textContent = err;
     else alert(err);
   });
