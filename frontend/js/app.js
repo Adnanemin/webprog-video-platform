@@ -304,6 +304,55 @@ async function initEditProfilePage() {
   });
 }
 
+//delete account
+
+function initDeleteAccountButton() {
+  const openBtn = qs("deleteAccountBtn");
+  const box = qs("deleteAccountBox");
+  const passEl = qs("deleteAccountPassword");
+  const msgEl = qs("deleteAccountMsg");
+  const confirmBtn = qs("confirmDeleteAccountBtn");
+  const cancelBtn = qs("cancelDeleteAccountBtn");
+
+  if (!openBtn || !box || !passEl || !confirmBtn) return;
+
+  openBtn.addEventListener("click", () => {
+    box.classList.remove("hidden");
+    if (msgEl) msgEl.textContent = "";
+    passEl.value = "";
+    passEl.focus();
+  });
+
+  if (cancelBtn) {
+    cancelBtn.addEventListener("click", () => {
+      box.classList.add("hidden");
+      if (msgEl) msgEl.textContent = "";
+      passEl.value = "";
+    });
+  }
+
+  confirmBtn.addEventListener("click", async () => {
+    const password = passEl.value.trim();
+    if (!password) {
+      if (msgEl) msgEl.textContent = "Password is required.";
+      return;
+    }
+
+    if (msgEl) msgEl.textContent = "Deleting account…";
+
+    const r = await apiPostForm("delete_account.php", { password });
+
+    if (r.ok && r.json && r.json.success) {
+      localStorage.clear();
+      window.location.href = "welcome.html";
+      return;
+    }
+
+    const err = (r.json && r.json.error) ? r.json.error : `Delete failed (HTTP ${r.status})`;
+    if (msgEl) msgEl.textContent = err;
+  });
+}
+
 // ---------- Page init: index.html ----------
 async function initIndexPage() {
   const searchInput = qs("searchInput");
@@ -740,5 +789,6 @@ window.addEventListener("DOMContentLoaded", () => {
   initClearHistoryButton();
   if (qs("fullName") && qs("username")) initMyAccountPage();
   initEditProfilePage();
+  initDeleteAccountButton();
 
 });

@@ -38,6 +38,7 @@
                         Edit Profile
                     </a>
                 </div>
+                
             </div>
 
             <div class="account-card">
@@ -57,6 +58,39 @@
 
                 <a class="btn account-btn" href="history.html">View Your Watch History</a>
             </div>
+
+            <div style="margin-top:12px;">
+                <h2 class="account-card__title">Delete Account</h2>
+                    <button id="deleteAccountBtn" class="btn btn-danger account-btn" type="button">
+                        Delete Account
+                    </button>
+                    </div>
+                    <br>
+
+                    <div id="deleteAccountBox" class="danger-box hidden">
+                    <p class="muted" style="margin:0 0 10px;">
+                        Enter your password to confirm account deletion.
+                    </p>
+
+                    <input
+                        id="deleteAccountPassword"
+                        type="password"
+                        class="input"
+                        placeholder="Warning! This action is permanent."
+                        autocomplete="current-password"
+                    />
+
+                    <p id="deleteAccountMsg" class="muted" style="margin-top:8px;"></p>
+
+                    <div style="margin-top:10px; display:flex; gap:10px;">
+                        <button id="confirmDeleteAccountBtn" class="btn btn-danger" type="button" style="background:red !important; color:white !important;" >
+                        Permanently Delete Account
+                        </button>
+                        <button id="cancelDeleteAccountBtn" class="btn btn-ghost" type="button">
+                        Cancel
+                        </button>
+                    </div>
+                    </div> 
         </section>
     </main>
 
