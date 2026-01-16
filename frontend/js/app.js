@@ -2,7 +2,9 @@ const USE_FAKE_DATA = false; // use backend when available (fallback to local if
 
 // Frontend is served from the VirtualHost (DocumentRoot = frontend/).
 // Backend API is exposed at: http://webprog-video-platform.local/api/...
-const API_BASE = "/webprog-video-platform/backend/api";
+const API_BASE = window.location.pathname.includes("/webprog-video-platform/")
+  ? "/webprog-video-platform/backend/api"
+  : "/api";
 
 // ---------- API helpers ----------
 async function apiGet(path, params = {}) {
