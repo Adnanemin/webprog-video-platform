@@ -97,6 +97,19 @@ FROM users u, categories c
 WHERE u.username = 'testuser' AND c.name = 'Nature'
 LIMIT 1;
 
+-- Ocean
+INSERT INTO videos (title, description, video_path, thumbnail_path, user_id, category_id)
+SELECT
+  'Ocean',
+  'Ocean',
+  'videos/ocean.mp4',
+  'thumbnails/ocean.png',
+  u.id,
+  c.id
+FROM users u, categories c
+WHERE u.username = 'testuser' AND c.name = 'Nature'
+LIMIT 1;
+
 -- COMMENTS
 -- -------------------------
 
