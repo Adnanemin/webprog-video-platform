@@ -24,41 +24,24 @@
     </section>
 
     <section class="account-grid">
-      <div class="account-card">
-        <h2 class="account-card__title">Profile Picture</h2>
-
-        <div class="profile__photo">
-          <img
-            id="profileImg"
-            class="profile__img"
-            src="defaultpfp.jpg"
-            width="150"
-            alt="Profile picture"
-          />
-        </div>
-
-        <input id="photoInput" class="hidden" type="file" accept="image/*" />
-
-        <div class="profile__photoActions">
-          <button class="btn" type="button">Upload new photo</button>
-        </div>
-      </div>
 
       <div class="account-card">
         <h2 class="account-card__title">Profile Information</h2>
 
-        <form class="admin-form" novalidate>
-          <label class="label">Name</label>
-          <input class="input" type="text" placeholder="Name" />
+        <form id="editProfileForm" class="admin-form" novalidate>
+          <label class="label" for="firstName">Name</label>
+          <input id="firstName" name="first_name" class="input" type="text" placeholder="Name" autocomplete="given-name" />
 
-          <label class="label">Surname</label>
-          <input class="input" type="text" placeholder="Surname" />
+          <label class="label" for="lastName">Surname</label>
+          <input id="lastName" name="last_name" class="input" type="text" placeholder="Surname" autocomplete="family-name" />
 
-          <label class="label">Username</label>
-          <input class="input" type="text" placeholder="username" />
+          <label class="label" for="username">Username</label>
+          <input id="username" name="username" class="input" type="text" placeholder="username" autocomplete="username" />
 
-          <label class="label">Email</label>
-          <input class="input" type="email" placeholder="you@example.com" />
+          <label class="label" for="email">Email</label>
+          <input id="email" name="email" class="input" type="email" placeholder="you@example.com" autocomplete="email" />
+
+          <p id="editProfileMsg" class="muted" style="margin-top:10px;"></p>
 
           <div class="admin-actions">
             <button class="btn" type="submit">Save Changes</button>
@@ -72,5 +55,6 @@
   <footer class="footer">
     <div class="container muted">© WeTube</div>
   </footer>
+<script src="js/app.js?v=3"></script>
 </body>
 </html>

@@ -57,7 +57,8 @@ function normalizeVideoFromBackend(v) {
     description: v.description ?? "",
     file_path: v.video_path ?? v.file_path ?? v.video_url ?? v.path ?? "",
     category: v.category_name ?? v.category ?? "Uncategorized",
-    thumb_path: v.thumbnail_path ?? v.thumb_path ?? "thumbnails/placeholder.png"
+    thumb_path: v.thumbnail_path ?? v.thumb_path ?? "thumbnails/placeholder.png",
+    uploader_username: v.uploader_username ?? v.username ?? ""
   };
 }
 
@@ -250,6 +251,58 @@ async function initMyAccountPage() {
   if (emailEl) emailEl.textContent = u.email || "";
 }
 
+//edit profile
+async function initEditProfilePage() {
+  const form = qs("editProfileForm");
+  if (!form) return; // not on editprofile.html
+
+  const firstNameEl = qs("firstName");
+  const lastNameEl = qs("lastName");
+  const usernameEl = qs("username");
+  const emailEl = qs("email");
+  const msgEl = qs("editProfileMsg");
+
+  // 1) Prefill form from session
+  const me = await apiGet("me.php");
+  if (!me.ok || !me.json || !me.json.logged_in || !me.json.user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  const u = me.json.user;
+  if (firstNameEl) firstNameEl.value = u.first_name || "";
+  if (lastNameEl) lastNameEl.value = u.last_name || "";
+  if (usernameEl) usernameEl.value = u.username || "";
+  if (emailEl) emailEl.value = u.email || "";
+
+  // 2) Submit handler
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const payload = {
+      first_name: firstNameEl.value.trim(),
+      last_name: lastNameEl.value.trim(),
+      username: usernameEl.value.trim(),
+      email: emailEl.value.trim()
+    };
+
+    if (msgEl) msgEl.textContent = "Saving…";
+
+    const r = await apiPostForm("profile_update.php", payload);
+
+    if (r.ok && r.json && r.json.success) {
+      window.location.href = "myaccount.html";
+      return;
+    }
+
+    const err =
+      (r.json && r.json.error) ||
+      `Save failed (HTTP ${r.status})`;
+
+    if (msgEl) msgEl.textContent = err;
+    else alert(err);
+  });
+}
 
 // ---------- Page init: index.html ----------
 async function initIndexPage() {
@@ -297,6 +350,10 @@ async function initVideoPage() {
   if (titleEl) titleEl.textContent = video.title || "Untitled";
   if (descEl) descEl.textContent = video.description || "";
 
+  const uploaderEl = qs("videoUploader");
+  if (uploaderEl && video.uploader_username) {
+    uploaderEl.textContent = "Posted by @" + video.uploader_username;
+  }
   // Real mode: show player, hide placeholder/notice
   if (noticeEl) noticeEl.classList.add("hidden");
   if (placeholderEl) placeholderEl.classList.add("hidden");
@@ -574,5 +631,6 @@ window.addEventListener("DOMContentLoaded", () => {
   initRegisterPage();
   initClearHistoryButton();
   if (qs("fullName") && qs("username")) initMyAccountPage();
+  initEditProfilePage();
 
 });
