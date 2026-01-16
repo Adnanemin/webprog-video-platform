@@ -19,5 +19,11 @@ if (!isset($_SESSION['user'])){
 // User is logged in
 echo json_encode([
     'logged_in' => true,
-    'user' => $_SESSION['user']
+    'user' => [
+        'id' => $_SESSION['user']['id'] ?? null,
+        'first_name' => $_SESSION['user']['first_name'] ?? null,
+        'last_name' => $_SESSION['user']['last_name'] ?? null,
+        'username' => $_SESSION['user']['username'] ?? null,
+        'email' => $_SESSION['user']['email'] ?? null
+    ]
 ]);
