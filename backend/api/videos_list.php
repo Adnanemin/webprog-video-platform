@@ -13,8 +13,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 
 try {
     $stmt = $pdo->query(
-        "SELECT id, title, description, video_path, thumbnail_path, uploaded_at
+        "SELECT id, title, description, video_path, thumbnail_path, uploaded_at, v.category_id, c.name AS category_name
          FROM videos
+         JOIN categories c ON c.id = v.category_id
          ORDER BY uploaded_at DESC"
     );
 
