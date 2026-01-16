@@ -430,7 +430,7 @@ function initLoginPage() {
         msg.textContent = "Logged in! Redirecting…";
       }
       // Go back to home (or you can change to myaccount.html)
-      window.location.href = "login.html";
+      window.location.href = "index.html";
       return;
     }
 
@@ -440,6 +440,9 @@ function initLoginPage() {
 
     // Helpful debug info during development
     console.warn("login failed", r.status, r.json);
+
+    if (msg) msg.textContent = err;
+    else alert(err);
 
   });
 }
