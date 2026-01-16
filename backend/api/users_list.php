@@ -15,7 +15,7 @@ if ((int)($_SESSION['user']['is_admin'] ?? 0) !== 1) {
   exit;
 }
 
-require __DIR__ . '/../../config/db.php';
+require __DIR__ . '/../config/db.php';
 
 try {
   // adminler listede görünmesin istiyorsun:
