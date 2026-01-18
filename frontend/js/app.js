@@ -494,7 +494,7 @@ async function initAccountDashboardPage() {
 
   async function loadMyVideos() {
     // change endpoint name if yours differs
-    const r = await apiGet("videos_list.php");
+    const r = await apiGet("my_videos_list.php");
 
     if (!r.ok || !r.json || !Array.isArray(r.json.videos)) {
       setMsg((r.json && r.json.error) ? r.json.error : `Load failed (HTTP ${r.status})`);
