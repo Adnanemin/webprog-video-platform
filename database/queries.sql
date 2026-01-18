@@ -26,6 +26,22 @@ SELECT 'Fun' WHERE NOT EXISTS (SELECT 1 FROM categories WHERE name='Fun');
 INSERT INTO categories (name)
 SELECT 'Education' WHERE NOT EXISTS (SELECT 1 FROM categories WHERE name='Education');
 
+-- Gaming
+INSERT INTO categories (name)
+SELECT 'Gaming' WHERE NOT EXISTS (SELECT 1 FROM categories WHERE name='Gaming');
+
+-- Music
+INSERT INTO categories (name)
+SELECT 'Music' WHERE NOT EXISTS (SELECT 1 FROM categories WHERE name='Music');
+
+-- Sport
+INSERT INTO categories(name)
+SELECT 'Sport' WHERE NOT EXISTS (SELECT 1 FROM categories WHERE name='Sport');
+
+-- ASMR
+INSERT INTO categories(name)
+SELECT 'ASMR' WHERE NOT EXISTS (SELECT 1 FROM categories WHERE name='AMSR');
+
 -- -------------------------
 -- VIDEOS
 -- -------------------------

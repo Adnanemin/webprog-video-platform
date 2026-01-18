@@ -26,7 +26,10 @@ $videoId = (int)($_POST['video_id'] ?? 0);
 
 $title       = trim($_POST['title'] ?? '');
 $description = trim($_POST['description'] ?? '');
-$categoryId  = (int)($_POST['category_id'] ?? 0);
+
+// Accept category by name (preferred). Keep category_id as a backward-compatible fallback.
+$categoryName = trim($_POST['category_name'] ?? '');
+$categoryId   = (int)($_POST['category_id'] ?? 0);
 
 if ($videoId <= 0 || $title === '') {
     http_response_code(400);
@@ -49,6 +52,21 @@ if (!$video || (int)$video['user_id'] !== $userId) {
     http_response_code(404);
     echo json_encode(['error' => 'Video not found']);
     exit;
+}
+
+// Resolve category_name to category_id (if provided)
+if ($categoryName !== '') {
+    $stmt = $pdo->prepare('SELECT id FROM categories WHERE name = ? LIMIT 1');
+    $stmt->execute([$categoryName]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$row) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Invalid category_name']);
+        exit;
+    }
+
+    $categoryId = (int)$row['id'];
 }
 
 /* Thumbnail handling (optional) */
@@ -132,7 +150,7 @@ try {
         @unlink($root . '/frontend/' . $newThumbWebPath);
     }
 
-    error_log('user_edit_video error: ' . $e->getMessage());
+    error_log('edit_video error: ' . $e->getMessage());
     http_response_code(500);
     echo json_encode(['error' => 'Server error']);
 }
