@@ -340,11 +340,14 @@ async function initAdminPage() {
     }
 
     // NOTE: your current videos_list.php may not return category_name.
-    videosTbody.innerHTML = vids.map(v => `
+    const normalized = vids.map(normalizeVideoFromBackend).filter(Boolean);
+
+    videosTbody.innerHTML = normalized.map(v => `
       <tr>
         <td>${escapeHtml(String(v.id))}</td>
         <td>${escapeHtml(v.title || "")}</td>
-        <td>${escapeHtml(v.category_name || "Uncategorized")}</td>
+        <td>@${escapeHtml(v.uploader_username || "unknown")}</td>
+        <td>${escapeHtml(v.category || "Uncategorized")}</td>
         <td class="table-right">
           <button class="btn btn-danger" data-del-video="${v.id}">Delete</button>
         </td>
