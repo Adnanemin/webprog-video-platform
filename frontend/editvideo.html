@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeTube - Edit Video</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+     <header class="topbar">
+    <div class="container topbar__inner">
+      <a class="brand" href="index.html">WeTube</a>
+      <nav class="nav">
+        <a href="index.html" class="nav__link">Home</a>
+        <a href="myaccount.html" class="nav__link">My Account</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+        <h1 class="hero__title">Edit Video</h1>
+        <p class="hero__subtitle">This page edits your upload.</p>
+    </section>
+
+    <section class="editvideo-grid">
+        <div class="editvideo-card">
+
+            <form id="videoForm" class="editvideo-form" novalidate>
+
+                <input id="videoId" type="hidden" />
+
+                <label class="label" for="title">Title</label>
+                <input id="title" class="input" type="text" placeholder="Video Title"/>
+
+                <label class="label" for="description">Description</label>
+                <textarea id="description" class="input textarea" placeholder="Short description"></textarea>
+
+                <label class="label" for="category">Category</label>
+                <input id="category" class="input" type="text" placeholder="e.g. General"/>
+
+                <label class="label" for="thumbnail">Thumbnail (optional)</label>
+                <input id="thumbnail" name="thumbnail" class="input" type="file" accept="image/jpeg,image/png,image/webp" />
+
+                <div class="thumb-preview">
+                    <img id="thumbPreviewImg" alt="Thumbnail preview" class="thumb-preview__img hidden">
+                    <p id="thumbPreviewEmpty" class="muted">Preview will appear here.</p>
+                </div>
+
+                <div class="editvideo-actions">
+                    <button class="btn" type="submit">Save</button>
+                    <button id="cancelEditBtn" class="btn btn-ghost" type="button">Cancel</button>
+                </div>
+            </form>
+
+            <p id="editvideoMsg" class="notice hidden"></p>
+        </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container muted">© WeTube</div>
+  </footer>
+
+  <script src="js/app.js" defer></script>
+
+</body>
+</html>

@@ -25,7 +25,7 @@
 
     <section class="accountdashboard-grid">
         <div class="accountdashboard-card">
-            <h2 class="accountdashboard-card__title">Add / Edit Videos</h2>
+            <h2 class="accountdashboard-card__title">Add Videos</h2>
 
             <form id="videoForm" class="accountdashboard-form" novalidate>
 
@@ -40,8 +40,16 @@
                 <label class="label" for="category">Category</label>
                 <input id="category" class="input" type="text" placeholder="e.g. General"/>
 
-                <label class="label" for="filePath">File Path (later from uploads)</label>
-                <input id="filePath" class="input" type="text" placeholder="uploads/video.mp4"/>
+                <label class="label" for="filePath">File Path</label>
+                <input id="filePath" class="input" type="text" placeholder="videos/video.mp4"/>
+
+                <label class="label" for="thumbnailPath">Thumbnail Path</label>
+                <input id="thumbnailPath" class="input" type="text" placeholder="thumbnails/thumbnail.jpg" />
+
+                <div class="thumb-preview">
+                    <img id="thumbPreviewImg" alt="Thumbnail preview" class="thumb-preview__img hidden">
+                    <p id="thumbPreviewEmpty" class="muted">Preview will appear here.</p>
+                </div>
 
                 <div class="accountdashboard-actions">
                     <button class="btn" type="submit">Save</button>
@@ -53,7 +61,7 @@
         </div>
 
         <div class="accountdashboard-card">
-            <h2 class="accountdashboard-card__title">Videos</h2>
+            <h2 class="accountdashboard-card__title">My Videos</h2>
 
             <div class="table-wrap">
                 <table class="table">

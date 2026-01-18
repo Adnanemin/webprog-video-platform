@@ -413,6 +413,75 @@ a{ color: inherit; text-decoration: none; }
   margin-top: 8px;
 }
 
+.thumb-preview{
+  margin-top: 10px;
+  border: 1px solid rgba(31,41,55,0.9);
+  border-radius: 12px;
+  background: rgba(11,15,23,0.25);
+  padding: 10px;
+}
+
+.thumb-preview__img{
+  width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
+}
+
+/* -------- Edit Video page -------- */
+.editvideo-grid{
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  padding-bottom: 30px;
+}
+
+/* Stack on small screens */
+@media (max-width: 900px){
+  .editvideo-grid{
+    grid-template-columns: 1fr;
+  }
+}
+
+.editvideo-card{
+  background: linear-gradient(180deg, rgba(17,24,39,0.9), rgba(15,23,42,0.9));
+  border: 1px solid rgba(31,41,55,0.9);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+
+/* Edit video form */
+.editvideo-form{
+  display: grid;
+  gap: 10px;
+}
+
+/* Buttons row */
+.editvideo-actions{
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.thumb-preview{
+  margin-top: 10px;
+  border: 1px solid rgba(31,41,55,0.9);
+  border-radius: 12px;
+  background: rgba(11,15,23,0.25);
+  padding: 10px;
+}
+
+.thumb-preview__img{
+  width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
+}
+
+
 /* -------- Admin page -------- */
 .admin-grid{
   display: grid;

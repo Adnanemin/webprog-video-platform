@@ -49,6 +49,17 @@ async function apiPostForm(path, formObj = {}) {
   return { ok: res.ok, status: res.status, json };
 }
 
+async function apiPostMultipart(path, formData) {
+  const cleanPath = String(path).replace(/^\/+/, "");
+  const res = await fetch(`${API_BASE}/${cleanPath}`, {
+    method: "POST",
+    body: formData,
+    credentials: "include"
+  });
+  const json = await res.json().catch(() => ({}));
+  return { ok: res.ok, status: res.status, json };
+}
+
 function normalizeVideoFromBackend(v) {
   if (!v) return null;
   return {
@@ -510,6 +521,7 @@ async function initAccountDashboardPage() {
         <td>${escapeHtml(v.title || "")}</td>
         <td>${escapeHtml(v.category || "Uncategorized")}</td>
         <td class="table-right">
+          <a class="btn btn-small" href="editvideo.html?id=${encodeURIComponent(v.id)}">Edit</a>
           <a class="btn btn-small" href="video.html?id=${encodeURIComponent(v.id)}">Watch</a>
           <button class="btn btn-danger btn-small" data-del-myvideo="${v.id}">Delete</button>
         </td>
@@ -533,6 +545,120 @@ async function initAccountDashboardPage() {
   }
 
   await loadMyVideos();
+}
+
+// Edit video page
+async function initEditVideoPage() {
+  const form = qs("videoForm");
+  if (!form) return;
+
+  // must be logged in
+  const me = await apiGet("me.php");
+  if (!me.ok || !me.json || !me.json.logged_in) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  const msgEl = qs("editvideoMsg");
+  const setMsg = (t, show = true) => {
+    if (!msgEl) return;
+    msgEl.textContent = t || "";
+    if (show && t) msgEl.classList.remove("hidden");
+    else msgEl.classList.add("hidden");
+  };
+
+  const id = getQueryParam("id");
+  if (!id) {
+    setMsg("Missing video id in URL.");
+    return;
+  }
+
+  // Load details
+  const detail = await apiGet("video_detail.php", { id: String(id) });
+  const raw = (detail.json && detail.json.video) ? detail.json.video : null;
+
+  if (!detail.ok || !raw) {
+    setMsg((detail.json && detail.json.error) ? detail.json.error : `Video load failed (HTTP ${detail.status})`);
+    return;
+  }
+
+  // Fill fields
+  const videoIdEl = qs("videoId");
+  const titleEl = qs("title");
+  const descEl = qs("description");
+  const catIdEl = qs("category");
+
+  if (videoIdEl) videoIdEl.value = String(raw.id ?? id);
+  if (titleEl) titleEl.value = raw.title || "";
+  if (descEl) descEl.value = raw.description || "";
+  if (catIdEl) catIdEl.value = String(raw.category_id || 0);
+
+  // Thumbnail preview (file)
+  const thumbInput = qs("thumbnail");
+  const img = qs("thumbPreviewImg");
+  const empty = qs("thumbPreviewEmpty");
+
+  if (thumbInput && img && empty) {
+    thumbInput.addEventListener("change", () => {
+      const file = thumbInput.files && thumbInput.files[0];
+      if (!file) {
+        img.classList.add("hidden");
+        empty.textContent = "Preview will appear here.";
+        empty.classList.remove("hidden");
+        img.removeAttribute("src");
+        return;
+      }
+      img.src = URL.createObjectURL(file);
+      img.classList.remove("hidden");
+      empty.classList.add("hidden");
+    });
+  }
+
+  // Cancel
+  const cancelBtn = qs("cancelEditBtn");
+  if (cancelBtn) {
+    cancelBtn.addEventListener("click", () => {
+      window.location.href = "accountdashboard.html";
+    });
+  }
+
+  // Submit
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const videoId = (videoIdEl && videoIdEl.value) ? videoIdEl.value.trim() : "";
+    const title = (titleEl && titleEl.value) ? titleEl.value.trim() : "";
+    const description = (descEl && descEl.value) ? descEl.value.trim() : "";
+    const category_id = (catIdEl && catIdEl.value) ? String(parseInt(catIdEl.value, 10) || 0) : "0";
+
+    if (!videoId || !title) {
+      setMsg("Video ID and Title are required.");
+      return;
+    }
+
+    setMsg("Saving…");
+
+    const fd = new FormData();
+    fd.append("video_id", videoId);
+    fd.append("title", title);
+    fd.append("description", description);
+    fd.append("category_id", category_id);
+
+    if (thumbInput && thumbInput.files && thumbInput.files[0]) {
+      fd.append("thumbnail", thumbInput.files[0]);
+    }
+
+    const r = await apiPostMultipart("edit_video.php", fd);
+
+    if (r.ok && r.json && r.json.success) {
+      setMsg("Saved! Redirecting…");
+      window.location.href = "accountdashboard.html";
+      return;
+    }
+
+    const err = (r.json && r.json.error) ? r.json.error : `Save failed (HTTP ${r.status})`;
+    setMsg(err);
+  });
 }
 
 // ---------- Page init: index.html ----------
@@ -974,5 +1100,6 @@ window.addEventListener("DOMContentLoaded", () => {
   initDeleteAccountButton();
   if (qs("usersTbody")) initAdminPage();
   if (qs("myVideosTbody")) initAccountDashboardPage();
+  if (qs("videoForm") && window.location.pathname.endsWith("/editvideo.html")) initEditVideoPage();
 
 });
