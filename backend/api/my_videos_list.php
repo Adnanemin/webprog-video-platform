@@ -22,11 +22,19 @@ if (!isset($_SESSION['user']['id'])) {
 $userId = (int)$_SESSION['user']['id'];
 
 $stmt = $pdo->prepare("
-  SELECT id, title, description, video_path, thumbnail_path, category_id, uploaded_at, c.name AS category_name
-  FROM videos
-  JOIN categories c ON c.id = v.category_id
-  WHERE user_id = ?
-  ORDER BY uploaded_at DESC
+  SELECT 
+    v.id,
+    v.title,
+    v.description,
+    v.video_path,
+    v.thumbnail_path,
+    v.category_id,
+    v.uploaded_at,
+    c.name AS category_name
+  FROM videos v
+  LEFT JOIN categories c ON c.id = v.category_id
+  WHERE v.user_id = ?
+  ORDER BY v.uploaded_at DESC
 ");
 $stmt->execute([$userId]);
 
