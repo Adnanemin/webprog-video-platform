@@ -56,7 +56,17 @@ async function apiPostMultipart(path, formData) {
     body: formData,
     credentials: "include"
   });
+
+  // If backend returns non-JSON (e.g., PHP fatal -> HTML), keep json = {}
   const json = await res.json().catch(() => ({}));
+
+  if (!res.ok && (!json || Object.keys(json).length === 0)) {
+    try {
+      const txt = await res.clone().text();
+      console.warn("Non-JSON error response:", res.status, txt.slice(0, 500));
+    } catch {}
+  }
+
   return { ok: res.ok, status: res.status, json };
 }
 
@@ -500,8 +510,136 @@ async function initAccountDashboardPage() {
     return;
   }
 
-  const msgEl = qs("accountdashboardMsg"); // optional <p id="accountdashboardMsg">
-  const setMsg = (t) => { if (msgEl) msgEl.textContent = t || ""; };
+  const msgEl = qs("accountdashboardMsg"); // <p id="accountdashboardMsg" class="notice hidden">
+  const setMsg = (t) => {
+    if (!msgEl) return;
+    const text = String(t || "").trim();
+    msgEl.textContent = text;
+    if (text) msgEl.classList.remove("hidden");
+    else msgEl.classList.add("hidden");
+  };
+
+  // Populate categories dropdown in account dashboard form
+  const addCatEl = qs("addCategoryId");
+  if (addCatEl) {
+    const cats = await apiGet("categories_list.php");
+    if (cats.ok && cats.json && Array.isArray(cats.json.categories)) {
+      addCatEl.innerHTML =
+        '<option value="0">Uncategorized</option>' +
+        cats.json.categories.map(c =>
+          `<option value="${c.id}">${escapeHtml(c.name)}</option>`
+        ).join("");
+    }
+  }
+
+  // Thumbnail preview for Add Video form
+  const addThumbInput = qs("addThumbnail");
+  const addImg = qs("addThumbPreviewImg");
+  const addEmpty = qs("addThumbPreviewEmpty");
+
+  if (addThumbInput && addImg && addEmpty) {
+    addThumbInput.addEventListener("change", () => {
+      const file = addThumbInput.files && addThumbInput.files[0];
+
+      if (!file) {
+        addImg.src = "";
+        addImg.classList.add("hidden");
+        addEmpty.classList.remove("hidden");
+        addEmpty.textContent = "Preview will appear here.";
+        return;
+      }
+
+      addImg.src = URL.createObjectURL(file);
+      addImg.classList.remove("hidden");
+      addEmpty.classList.add("hidden");
+    });
+  }
+
+  const addForm = qs("addVideoForm");
+  // Cancel (Account Dashboard Add Video form)
+  const cancelBtn = qs("cancelEditBtn");
+  if (cancelBtn && addForm) {
+    cancelBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+
+      // Reset form fields
+      addForm.reset();
+
+      // Reset category dropdown
+      if (addCatEl) addCatEl.value = "0";
+
+      // Reset thumbnail preview
+      if (addImg && addEmpty) {
+        addImg.src = "";
+        addImg.classList.add("hidden");
+        addEmpty.classList.remove("hidden");
+        addEmpty.textContent = "Preview will appear here.";
+      }
+
+      // Clear message
+      setMsg("");
+    });
+  }
+  if (addForm) {
+    addForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const titleEl = qs("addTitle");
+      const descEl = qs("addDescription");
+
+      const title = titleEl ? titleEl.value.trim() : "";
+      const description = descEl ? descEl.value.trim() : "";
+
+      const category_id =
+        addCatEl ? String(parseInt(addCatEl.value, 10) || 0) : "0";
+
+      if (!title) {
+        setMsg("Title is required");
+        return;
+      }
+
+      const fd = new FormData();
+      fd.append("title", title);
+      fd.append("description", description);
+      fd.append("category_id", category_id);
+
+      const thumbFile = addThumbInput && addThumbInput.files && addThumbInput.files[0];
+      if (thumbFile) fd.append("thumbnail", thumbFile);
+
+      setMsg("Adding video…");
+
+      const videoInput = qs("addVideoFile");
+      const videoFile = videoInput?.files?.[0];
+
+      if (!videoFile) {
+        setMsg("Video file is required.");
+        return;
+      }
+
+      fd.append("video", videoFile); // MUST be named "video" for PHP
+
+      const r = await apiPostMultipart("upload_video.php", fd);
+
+      if (r.ok && r.json && r.json.success) {
+        setMsg("Video added.");
+        addForm.reset();
+        if (addCatEl) addCatEl.value = "0";
+        // reset preview UI
+        if (addImg && addEmpty) {
+          addImg.src = "";
+          addImg.classList.add("hidden");
+          addEmpty.classList.remove("hidden");
+          addEmpty.textContent = "Preview will appear here.";
+        }
+        await loadMyVideos();
+        return;
+      }
+
+      setMsg(
+        (r.json && r.json.error) || `Add failed (HTTP ${r.status})`
+      );
+    });
+  }
 
   async function loadMyVideos() {
     // change endpoint name if yours differs
@@ -586,12 +724,24 @@ async function initEditVideoPage() {
   const videoIdEl = qs("videoId");
   const titleEl = qs("title");
   const descEl = qs("description");
-  const catIdEl = qs("category");
+  const catIdEl = qs("categoryId");
 
   if (videoIdEl) videoIdEl.value = String(raw.id ?? id);
   if (titleEl) titleEl.value = raw.title || "";
   if (descEl) descEl.value = raw.description || "";
   if (catIdEl) catIdEl.value = String(raw.category_id || 0);
+
+  // Load categories into dropdown
+  if (catIdEl) {
+    const cats = await apiGet("categories_list.php");
+    if (cats.ok && cats.json && Array.isArray(cats.json.categories)) {
+      catIdEl.innerHTML =
+        '<option value="0">Uncategorized</option>' +
+        cats.json.categories.map(c =>
+          `<option value="${c.id}">${escapeHtml(c.name)}</option>`
+        ).join("");
+    }
+  }
 
   // Thumbnail preview (file)
   const thumbInput = qs("thumbnail");

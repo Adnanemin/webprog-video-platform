@@ -27,28 +27,30 @@
         <div class="accountdashboard-card">
             <h2 class="accountdashboard-card__title">Add Videos</h2>
 
-            <form id="videoForm" class="accountdashboard-form" novalidate>
+            <form id="addVideoForm" class="accountdashboard-form" novalidate>
 
                 <input id="videoId" type="hidden" />
 
                 <label class="label" for="title">Title</label>
-                <input id="title" class="input" type="text" placeholder="Video Title"/>
+                <input id="addTitle" class="input" type="text" placeholder="Video Title"/>
 
                 <label class="label" for="description">Description</label>
-                <textarea id="description" class="input textarea" placeholder="Short description"></textarea>
+                <textarea id="addDescription" class="input textarea" placeholder="Short description"></textarea>
 
-                <label class="label" for="category">Category</label>
-                <input id="category" class="input" type="text" placeholder="e.g. General"/>
+                <label class="label" for="addCategoryId">Category</label>
+                <select id="addCategoryId" class="input">
+                    <option value="0">Uncategorized</option>
+                </select>
 
-                <label class="label" for="filePath">File Path</label>
-                <input id="filePath" class="input" type="text" placeholder="videos/video.mp4"/>
+                <label class="label" for="addVideoFile">Video File (MP4)</label>
+                <input id="addVideoFile" class="input" type="file" accept="video/mp4"/>
 
-                <label class="label" for="thumbnailPath">Thumbnail Path</label>
-                <input id="thumbnailPath" class="input" type="text" placeholder="thumbnails/thumbnail.jpg" />
+                <label class="label" for="addThumbnail">Thumbnail (optional)</label>
+                <input id="addThumbnail" class="input" type="file" accept="image/jpeg,image/png,image/webp">
 
                 <div class="thumb-preview">
-                    <img id="thumbPreviewImg" alt="Thumbnail preview" class="thumb-preview__img hidden">
-                    <p id="thumbPreviewEmpty" class="muted">Preview will appear here.</p>
+                    <img id="addThumbPreviewImg" alt="Thumbnail preview" class="thumb-preview__img hidden">
+                    <p id="addThumbPreviewEmpty" class="muted">Preview will appear here.</p>
                 </div>
 
                 <div class="accountdashboard-actions">
@@ -88,11 +90,6 @@
   </footer>
 
   <script src="js/app.js"></script>
-  <script>
-    window.addEventListener("DOMContentLoaded", () => {
-        initAccountDashboardPage(); // we'll add this function next step
-    });
-  </script>
 
 </body>
 </html>
