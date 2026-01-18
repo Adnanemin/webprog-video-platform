@@ -21,8 +21,10 @@ try {
             v.thumbnail_path,
             v.uploaded_at AS created_at,
             v.category_id,
-            c.name AS category_name
+            c.name AS category_name,
+            u.username AS uploader_username
         FROM videos v
+        JOIN users u ON u.id = v.user_id
         LEFT JOIN categories c ON c.id = v.category_id
         ORDER BY v.uploaded_at DESC"
     );
