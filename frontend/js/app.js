@@ -266,7 +266,7 @@ async function initAdminPage() {
   const emptyEl = qs("adminEmpty");
 
   // not on admin.html
-  if (!usersTbody && !videosTbody) return;
+  if (!usersTbody) return;
 
   const setMsg = (t) => {
     if (!msgEl) return;
@@ -356,7 +356,7 @@ async function initAdminPage() {
         const videoId = btn.getAttribute("data-del-video");
         if (!confirm("Delete this video? This cannot be undone.")) return;
 
-        const del = await apiPostForm("admin/delete_video.php", { video_id: videoId });
+        const del = await apiPostForm("admin/admin_delete_video.php", { video_id: videoId });
         if (del.ok && del.json && del.json.success) {
           setMsg("Video deleted.");
           await loadVideos();
@@ -472,6 +472,64 @@ function initDeleteAccountButton() {
     const err = (r.json && r.json.error) ? r.json.error : `Delete failed (HTTP ${r.status})`;
     if (msgEl) msgEl.textContent = err;
   });
+}
+
+//account dashboard
+async function initAccountDashboardPage() {
+  const tbody = qs("myVideosTbody"); // <-- make sure your table tbody has this id
+  if (!tbody) return;
+
+  // must be logged in
+  const me = await apiGet("me.php");
+  if (!me.ok || !me.json || !me.json.logged_in) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  const msgEl = qs("accountdashboardMsg"); // optional <p id="accountdashboardMsg">
+  const setMsg = (t) => { if (msgEl) msgEl.textContent = t || ""; };
+
+  async function loadMyVideos() {
+    // change endpoint name if yours differs
+    const r = await apiGet("videos_list.php");
+
+    if (!r.ok || !r.json || !Array.isArray(r.json.videos)) {
+      setMsg((r.json && r.json.error) ? r.json.error : `Load failed (HTTP ${r.status})`);
+      tbody.innerHTML = "";
+      return;
+    }
+
+    const videos = r.json.videos.map(normalizeVideoFromBackend).filter(Boolean);
+
+    tbody.innerHTML = videos.map(v => `
+      <tr>
+        <td>${escapeHtml(String(v.id))}</td>
+        <td>${escapeHtml(v.title || "")}</td>
+        <td>${escapeHtml(v.category || "Uncategorized")}</td>
+        <td class="table-right">
+          <a class="btn btn-small" href="video.html?id=${encodeURIComponent(v.id)}">Watch</a>
+          <button class="btn btn-danger btn-small" data-del-myvideo="${v.id}">Delete</button>
+        </td>
+      </tr>
+    `).join("");
+
+    tbody.querySelectorAll("[data-del-myvideo]").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const videoId = btn.getAttribute("data-del-myvideo");
+        if (!confirm("Delete this video? This cannot be undone.")) return;
+
+        const del = await apiPostForm("user_delete_video.php", { video_id: videoId });
+        if (del.ok && del.json && del.json.success) {
+          setMsg("Video deleted.");
+          await loadMyVideos();
+          return;
+        }
+        setMsg((del.json && del.json.error) ? del.json.error : `Delete failed (HTTP ${del.status})`);
+      });
+    });
+  }
+
+  await loadMyVideos();
 }
 
 // ---------- Page init: index.html ----------
@@ -911,6 +969,7 @@ window.addEventListener("DOMContentLoaded", () => {
   if (qs("fullName") && qs("username")) initMyAccountPage();
   initEditProfilePage();
   initDeleteAccountButton();
-  if (qs("usersTbody") || qs("videosTbody")) initAdminPage();
+  if (qs("usersTbody")) initAdminPage();
+  if (qs("myVideosTbody")) initAccountDashboardPage();
 
 });

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WeTube - Admin</title>
+    <title>WeTube - Account Dashboard</title>
     <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -20,42 +20,42 @@
   <main class="container">
     <section class="hero">
         <h1 class="hero__title">Account Dashboard</h1>
-        <p class="hero__subtitle">Demo mode, later this page will manage videos from the database.</p>
+        <p class="hero__subtitle">This page manages videos from the database.</p>
     </section>
 
-    <section class="admin-grid">
-        <div class="admin-card">
-            <h2 class="admin-card__title">Add / Edit video (Coming Soon...)</h2>
+    <section class="accountdashboard-grid">
+        <div class="accountdashboard-card">
+            <h2 class="accountdashboard-card__title">Add / Edit Videos</h2>
 
-            <form id="videoForm" class="admin-form" novalidate>
+            <form id="videoForm" class="accountdashboard-form" novalidate>
 
                 <input id="videoId" type="hidden" />
 
                 <label class="label" for="title">Title</label>
-                <input id="title" class="input" type="text" placeholder="Video Title" disabled />
+                <input id="title" class="input" type="text" placeholder="Video Title"/>
 
                 <label class="label" for="description">Description</label>
-                <input id="description" class="input textarea" placeholder="Short description" disabled/>
+                <textarea id="description" class="input textarea" placeholder="Short description"></textarea>
 
                 <label class="label" for="category">Category</label>
-                <input id="category" class="input" type="text" placeholder="e.g. General" disabled />
+                <input id="category" class="input" type="text" placeholder="e.g. General"/>
 
                 <label class="label" for="filePath">File Path (later from uploads)</label>
-                <input id="filePath" class="input" type="text" placeholder="uploads/video.mp4" disabled />
+                <input id="filePath" class="input" type="text" placeholder="uploads/video.mp4"/>
 
-                <div class="admin-actions">
-                    <button class="btn" type="submit" disabled>Save</button>
-                    <button id="cancelEditBtn" class="btn btn-ghost" type="button" disabled>Cancel</button>
+                <div class="accountdashboard-actions">
+                    <button class="btn" type="submit">Save</button>
+                    <button id="cancelEditBtn" class="btn btn-ghost" type="button">Cancel</button>
                 </div>
             </form>
 
-            <p id="adminMsg" class="notice hidden"></p>
+            <p id="accountdashboardMsg" class="notice hidden"></p>
         </div>
 
-        <div class="admin-card">
-            <h2 class="admin-card__title">Videos</h2>
+        <div class="accountdashboard-card">
+            <h2 class="accountdashboard-card__title">Videos</h2>
 
-            <div class="table_wrap">
+            <div class="table-wrap">
                 <table class="table">
                     <thead>
                         <tr>
@@ -65,13 +65,12 @@
                             <th class="table-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="videosTbody">
-                        
+                    <tbody id="myVideosTbody">
                     </tbody>
                 </table>
             </div>
 
-            <p id="adminEmpty" class="muted hidden">No videos yet.</p>
+            <p id="accountdashboardEmpty" class="muted hidden">No videos yet.</p>
         </div>
     </section>
   </main>
@@ -83,7 +82,7 @@
   <script src="js/app.js"></script>
   <script>
     window.addEventListener("DOMContentLoaded", () => {
-        initAdminPage(); // we'll add this function next step
+        initAccountDashboardPage(); // we'll add this function next step
     });
   </script>
 
