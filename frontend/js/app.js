@@ -217,13 +217,19 @@ function renderVideosGrid(videos) {
   for (const v of videos) {
     const card = document.createElement("article");
     card.className = "card";
+
+    // Thumbnail path optional -> if missing, we render without a thumbnail src
+    const thumbPath = (v && v.thumb_path) ? String(v.thumb_path) : "";
+    const thumbSrc = thumbPath
+      ? (thumbPath.startsWith("database/") ? "../" + thumbPath : thumbPath)
+      : "";
+
     card.innerHTML = `
       <div class="card__thumbWrap">
         <img
           class="card__thumb"
-          src="${v.thumb_path || 'thumbnails/placeholder.png'}"
+          ${thumbSrc ? `src="${thumbSrc}"` : ""}
           alt="${escapeHtml(v.title)} thumbnail"
-          onerror="this.src='thumbnails/placeholder.png';"
         />
       </div>
       <div class="card__body">
@@ -235,6 +241,7 @@ function renderVideosGrid(videos) {
         <a class="btn" href="video.html?id=${encodeURIComponent(v.id)}">Watch</a>
       </div>
     `;
+
     grid.appendChild(card);
   }
 }
@@ -867,10 +874,10 @@ async function initVideoPage() {
 
   const sourceEl = qs("videoSource");
   if (sourceEl) {
-    sourceEl.src = video.file_path;
+    sourceEl.src = video.file_path.startsWith("database/") ? "../" + video.file_path : video.file_path;
     if (playerEl) playerEl.load();
   } else if (playerEl) {
-    playerEl.src = video.file_path;
+    playerEl.src = video.file_path.startsWith("database/") ? "../" + video.file_path : video.file_path;
     playerEl.load();
   }
   if (playerEl) playerEl.classList.remove("hidden");
@@ -886,23 +893,24 @@ async function initHistoryPage() {
   const tbody = qs("historyTbody");
   if (!tbody) return;
 
-  // Prefer backend history when available
   let items = loadHistory();
+
   if (!USE_FAKE_DATA) {
-    const { ok, status, json } = await apiGet("history_list.php", { limit: String(HISTORY_LIMIT) });
-    const rows = (json && Array.isArray(json.history) && json.history) || null;
+    const me = await apiGet("me.php");
+    const loggedIn = !!(me.ok && me.json && me.json.logged_in);
 
-    if (ok && rows) {
-      items = rows.map(r => ({
-        video_id: Number(r.video_id),
-        title: r.title || "Untitled",
-        watched_at: r.watched_at
-      }));
+    if (loggedIn) {
+      const r = await apiGet("history_list.php", { limit: String(HISTORY_LIMIT) });
+      const rows = (r.json && Array.isArray(r.json.history) && r.json.history) || null;
 
-      // cache locally too
-      saveHistory(items);
-    } else if (status !== 403 && status !== 401) {
-      console.warn("history_list failed", status, json);
+      if (r.ok && rows) {
+        items = rows.map(x => ({
+          video_id: Number(x.video_id),
+          title: x.title || "Untitled",
+          watched_at: x.watched_at
+        }));
+        saveHistory(items);
+      }
     }
   }
 
@@ -921,19 +929,11 @@ async function initHistoryPage() {
 
   for (const h of items) {
     const tr = document.createElement("tr");
-    const title = escapeHtml(h.title || "Untitled");
-    const date = escapeHtml(formatHistoryDate(h.watched_at));
-
     tr.innerHTML = `
-      <td>${date}</td>
-      <td>
-        <a class="link" href="video.html?id=${encodeURIComponent(h.video_id)}">${title}</a>
-      </td>
-      <td class="table-right">
-        <a class="btn btn-small" href="video.html?id=${encodeURIComponent(h.video_id)}">Watch</a>
-      </td>
+      <td>${escapeHtml(formatHistoryDate(h.watched_at))}</td>
+      <td><a class="link" href="video.html?id=${encodeURIComponent(h.video_id)}">${escapeHtml(h.title || "Untitled")}</a></td>
+      <td class="table-right"><a class="btn btn-small" href="video.html?id=${encodeURIComponent(h.video_id)}">Watch</a></td>
     `;
-
     tbody.appendChild(tr);
   }
 }

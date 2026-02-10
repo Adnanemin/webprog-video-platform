@@ -51,8 +51,8 @@ INSERT INTO videos (title, description, video_path, thumbnail_path, user_id, cat
 SELECT
   'Bird',
   'Bird sitting on a branch.',
-  '/../database/videos/bird.mp4',
-  '/../database/thumbnails/bird.png',
+  'database/videos/bird.mp4',
+  'database/thumbnails/bird.png',
   u.id,
   c.id
 FROM users u, categories c
@@ -64,8 +64,8 @@ INSERT INTO videos (title, description, video_path, thumbnail_path, user_id, cat
 SELECT
   'Calming Nature Video',
   'Video of a calming river flowing.',
-  '/../database/videos/nature.mp4',
-  '/../database/thumbnails/nature.png',
+  'database/videos/nature.mp4',
+  'database/thumbnails/nature.png',
   u.id,
   c.id
 FROM users u, categories c
@@ -77,8 +77,8 @@ INSERT INTO videos (title, description, video_path, thumbnail_path, user_id, cat
 SELECT
   'Snowy Landscape',
   'Video of a snowy landscape.',
-  '/../database/videos/snow.mp4',
-  '/../database/thumbnails/snow.png',
+  'database/videos/snow.mp4',
+  'database/thumbnails/snow.png',
   u.id,
   c.id
 FROM users u, categories c
@@ -90,8 +90,8 @@ INSERT INTO videos (title, description, video_path, thumbnail_path, user_id, cat
 SELECT
   'Solar System',
   'A solar system visualization.',
-  '/../database/videos/space.mp4',
-  '/../database/thumbnails/space.png',
+  'database/videos/space.mp4',
+  'database/thumbnails/space.png',
   u.id,
   c.id
 FROM users u, categories c
@@ -103,8 +103,8 @@ INSERT INTO videos (title, description, video_path, thumbnail_path, user_id, cat
 SELECT
   'Cute Turtle',
   'Cute turtle swimming.',
-  '/../database/videos/turtle.mp4',
-  '/../database/thumbnails/turtle.png',
+  'database/videos/turtle.mp4',
+  'database/thumbnails/turtle.png',
   u.id,
   c.id
 FROM users u, categories c
@@ -116,8 +116,8 @@ INSERT INTO videos (title, description, video_path, thumbnail_path, user_id, cat
 SELECT
   'Waves',
   '.',
-  '/../database/videos/waves.mp4',
-  '/../database/thumbnails/waves.png',
+  'database/videos/waves.mp4',
+  'database/thumbnails/waves.png',
   u.id,
   c.id
 FROM users u, categories c
@@ -129,8 +129,8 @@ INSERT INTO videos (title, description, video_path, thumbnail_path, user_id, cat
 SELECT
   'Ocean',
   'Ocean',
-  '/../database/videos/ocean.mp4',
-  '/../database/thumbnails/ocean.png',
+  'database/videos/ocean.mp4',
+  'database/thumbnails/ocean.png',
   u.id,
   c.id
 FROM users u, categories c
