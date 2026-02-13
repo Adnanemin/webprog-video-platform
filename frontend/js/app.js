@@ -8,7 +8,6 @@ const API_BASE = window.location.pathname.includes("/webprog-video-platform/")
 
 // ---------- API helpers ----------
 async function apiGet(path, params = {}) {
-  // prevent accidental leading slashes creating // in URLs
   const cleanPath = String(path).replace(/^\/+/, "");
   const url = new URL(`${API_BASE}/${cleanPath}`, window.location.href);
 
@@ -18,7 +17,6 @@ async function apiGet(path, params = {}) {
 
   const res = await fetch(url.toString(), { credentials: "include" });
 
-  // If backend returns non-JSON (e.g., HTML error), keep json = {}
   const json = await res.json().catch(() => ({}));
   return { ok: res.ok, status: res.status, json };
 }
@@ -35,10 +33,8 @@ async function apiPostForm(path, formObj = {}) {
     credentials: "include"
   });
 
-  // If backend returns non-JSON (e.g., PHP fatal -> HTML), keep json = {}
   const json = await res.json().catch(() => ({}));
 
-  // Helpful debug if backend is broken and not returning JSON
   if (!res.ok && (!json || Object.keys(json).length === 0)) {
     try {
       const txt = await res.clone().text();
@@ -57,7 +53,6 @@ async function apiPostMultipart(path, formData) {
     credentials: "include"
   });
 
-  // If backend returns non-JSON (e.g., PHP fatal -> HTML), keep json = {}
   const json = await res.json().catch(() => ({}));
 
   if (!res.ok && (!json || Object.keys(json).length === 0)) {
@@ -293,7 +288,6 @@ async function initAdminPage() {
   const msgEl = qs("adminMsg");
   const emptyEl = qs("adminEmpty");
 
-  // not on admin.html
   if (!usersTbody) return;
 
   const setMsg = (t) => {
@@ -303,7 +297,6 @@ async function initAdminPage() {
     else msgEl.classList.add("hidden");
   };
 
-  // Gate: must be admin
   const me = await apiGet("me.php");
   if (!me.ok || !me.json || !me.json.logged_in) {
     window.location.href = "login.html";
@@ -315,8 +308,6 @@ async function initAdminPage() {
     return;
   }
 
-  // ---- YOU MUST HAVE THESE 2 LIST ENDPOINTS ----
-  // If your friend named them differently, change these two lines.
   async function loadUsers() {
     const r = await apiGet("users_list.php");
     if (!r.ok || !r.json || !Array.isArray(r.json.users)) {
@@ -367,7 +358,6 @@ async function initAdminPage() {
       else emptyEl.classList.add("hidden");
     }
 
-    // NOTE: your current videos_list.php may not return category_name.
     const normalized = vids.map(normalizeVideoFromBackend).filter(Boolean);
 
     videosTbody.innerHTML = normalized.map(v => `
@@ -1240,7 +1230,6 @@ window.addEventListener("DOMContentLoaded", () => {
   if (qs("videoPlayer") || qs("demoPlaceholder")) initVideoPage();
   if (qs("historyTbody")) initHistoryPage();
 
-  // Auth pages / buttons
   initLoginPage();
   initLogoutBindings();
   initRegisterPage();
