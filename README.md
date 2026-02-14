@@ -1,37 +1,44 @@
-# webprog-video-platform
-🎬 WeTube – Video Platform
+## Notes
+
+This project was created for educational purposes and demonstrates basic full-stack web development using PHP and JavaScript.
+# WeTube – Video Platform
 
 A simple video-sharing web application developed for a Web Programming course.
 Users can register, upload videos, watch content, and manage their own videos.
 
-⸻
+---
 
-📌 Features
-	•	User registration and login
-	•	Upload videos with optional thumbnails
-	•	View video list and watch videos
-	•	Edit and delete uploaded videos
-	•	Category selection for videos
-	•	Comment system
-	•	Watch history tracking
-	•	Admin panel for managing users and videos
+## Features
 
-⸻
+- User registration and login
+- Upload videos with optional thumbnails
+- View video list and watch videos
+- Edit and delete uploaded videos
+- Category selection for videos
+- Comment system
+- Watch history tracking
+- Admin panel for managing users and videos
 
-🛠️ Technologies Used
+---
 
-Frontend
-	•	HTML
-	•	CSS
-	•	JavaScript (Vanilla JS)
+## Technologies Used
 
-Backend
-	•	PHP
-	•	MySQL (Database)
+### Frontend
 
+- HTML
+- CSS
+- JavaScript (Vanilla JS)
 
-Project Structure
+### Backend
 
+- PHP
+- MySQL (Database)
+
+---
+
+## Project Structure
+
+```text
 project-root/
 ├── frontend/
 │   ├── css/
@@ -56,37 +63,46 @@ project-root/
     ├── queries.sql
     ├── videos/
     └── thumbnails/
+```
 
+---
 
-⚙️ How It Works
+## How It Works
 
 The frontend communicates with the backend using REST-like API endpoints.
 JavaScript sends HTTP requests (GET/POST) to PHP files, which interact with the database.
 
-Example:
-	•	videos_list.php → returns video list
-	•	upload_video.php → uploads a video
-	•	edit_video.php → edits video data
+### Example Endpoints
 
-The frontend then dynamically updates the UI based on the response.
+- `videos_list.php` → Returns video list
+- `upload_video.php` → Uploads a video
+- `edit_video.php` → Edits video data
 
+The frontend dynamically updates the UI based on the responses.
 
-⸻
+---
 
-▶️ Running the Project
-	1.	Place the project inside htdocs (XAMPP)
-	2.	Start Apache and MySQL
-	3.	Import the database
-	4.	Open in browser:
-    http://localhost/webprog-video-platform/
+## Running the Project
 
+1. Place the project inside `htdocs` (XAMPP)
+2. Start Apache and MySQL
+3. Import the database
+4. Open in browser:
+   ```
+   http://localhost/webprog-video-platform/
+   ```
 
-👥 Authors
-	•	Frontend: Nazlıgül Coşkun - GitHub: bluexberriesx
-	•	Backend: Adnan Emin Nalçacı - GitHub: Adnanemin
+---
 
-⸻
+##  Authors
 
-📌 Notes
+- **Frontend:** Nazlıgül Coşkun  \
+  GitHub: bluexberriesx
+- **Backend:** Adnan Emin Nalçacı  \
+  GitHub: Adnanemin
+
+---
+
+##  Notes
 
 This project was created for educational purposes and demonstrates basic full-stack web development using PHP and JavaScript.
