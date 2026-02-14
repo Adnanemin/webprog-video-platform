@@ -1,6 +1,3 @@
-## Notes
-
-This project was created for educational purposes and demonstrates basic full-stack web development using PHP and JavaScript.
 # WeTube – Video Platform
 
 A simple video-sharing web application developed for a Web Programming course.
