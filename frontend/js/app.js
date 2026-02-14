@@ -1,12 +1,10 @@
-const USE_FAKE_DATA = false; // use backend when available (fallback to local if it fails)
+const USE_FAKE_DATA = false; // use backend when available
 
-// Frontend is served from the VirtualHost (DocumentRoot = frontend/).
-// Backend API is exposed at: http://webprog-video-platform.local/api/...
 const API_BASE = window.location.pathname.includes("/webprog-video-platform/")
   ? "/webprog-video-platform/backend/api"
   : "/api";
 
-// ---------- API helpers ----------
+//API helpers
 async function apiGet(path, params = {}) {
   const cleanPath = String(path).replace(/^\/+/, "");
   const url = new URL(`${API_BASE}/${cleanPath}`, window.location.href);
@@ -78,7 +76,7 @@ function normalizeVideoFromBackend(v) {
   };
 }
 
-// ---------- Watch history (frontend demo using localStorage) ----------
+//Watch history
 const HISTORY_KEY = "wetube_watch_history";
 const HISTORY_LIMIT = 50;
 
@@ -106,15 +104,12 @@ async function addToHistory(video) {
     watched_at: now.toISOString()
   };
 
-  // Dedupe by video_id: keep newest at the top
   const prev = loadHistory().filter(h => h.video_id !== entry.video_id);
   const next = [entry, ...prev].slice(0, HISTORY_LIMIT);
   saveHistory(next);
 
-  // Backend logging (requires login; guests will get 403)
   if (!USE_FAKE_DATA) {
     const r = await apiPostForm("history_add.php", { video_id: String(video.id) });
-    // Guests/not-logged-in will get 403/401; ignore silently
     if (!r.ok && r.status !== 403 && r.status !== 401) {
       console.warn("history_add failed", r.status, r.json);
     }
@@ -128,7 +123,7 @@ function formatHistoryDate(iso) {
   return `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-// ---------- Utilities ----------
+//Utilities
 function qs(id) {
   return document.getElementById(id);
 }
@@ -152,21 +147,19 @@ function getQueryParam(name) {
   return url.searchParams.get(name);
 }
 
-// ---------- Data layer ----------
+//Data layer
 async function getVideosList(query = "") {
   if (USE_FAKE_DATA) return [];
 
-  // Folder-based listing endpoint (backend scans frontend/videos + frontend/thumbnails)
   const { ok, json } = await apiGet("videos_list.php", { q: query });
 
   const list = (json && Array.isArray(json.videos) && json.videos) || null;
-  if (!ok || !list) return []; // fallback
+  if (!ok || !list) return [];
 
   const normalized = list.map(normalizeVideoFromBackend).filter(Boolean);
   const q = String(query || "").trim().toLowerCase();
   if (!q) return normalized;
 
-  // Simple client-side search over the returned list
   return normalized.filter(v =>
     (v.title || "").toLowerCase().includes(q) ||
     (v.description || "").toLowerCase().includes(q) ||
@@ -180,7 +173,6 @@ async function getVideoDetailById(id) {
 
   if (USE_FAKE_DATA) return null;
 
-  // Try backend detail endpoint
   const { ok, json } = await apiGet("video_detail.php", { id: String(vid) });
 
   const raw =
@@ -190,12 +182,11 @@ async function getVideoDetailById(id) {
 
   if (ok && raw) return normalizeVideoFromBackend(raw);
 
-  // Fallback: ask list and find
   const all = await getVideosList();
   return all.find((v) => v.id === vid) || null;
 }
 
-// ---------- Rendering ----------
+//Rendering
 function renderVideosGrid(videos) {
   const grid = qs("videosGrid");
   const empty = qs("emptyState");
@@ -213,7 +204,6 @@ function renderVideosGrid(videos) {
     const card = document.createElement("article");
     card.className = "card";
 
-    // Thumbnail path optional -> if missing, we render without a thumbnail src
     const thumbPath = (v && v.thumb_path) ? String(v.thumb_path) : "";
     const thumbSrc = thumbPath
       ? (thumbPath.startsWith("database/") ? "../" + thumbPath : thumbPath)
@@ -244,7 +234,6 @@ function renderVideosGrid(videos) {
 // myaccount
 async function getMe() {
   const { ok, status, json } = await apiGet("me.php");
-  // your me.php returns { logged_in: true/false, user: ... }
   if (!ok) return { ok: false, status, user: null, json };
 
   const loggedIn = !!json.logged_in;
@@ -252,10 +241,10 @@ async function getMe() {
 }
 
 async function initMyAccountPage() {
-  const nameEl = qs("fullName");     // <h2 id="fullName">
-  const userEl = qs("username");     // <p id="username">
-  const emailEl = qs("email");       // <p id="email">  (add this in HTML)
-  if (!nameEl || !userEl) return;    // not on myaccount page
+  const nameEl = qs("fullName");    
+  const userEl = qs("username");     
+  const emailEl = qs("email");       
+  if (!nameEl || !userEl) return;    
 
   const res = await getMe();
 
@@ -266,14 +255,12 @@ async function initMyAccountPage() {
 
   const u = res.user;
 
-  // Option B: these should exist in session now
   const fullName = `${u.first_name || ""} ${u.last_name || ""}`.trim();
   nameEl.textContent = fullName || "User";
   userEl.textContent = "@" + (u.username || "unknown");
 
   if (emailEl) emailEl.textContent = u.email || "";
 
-    // Admin Dashboard button (only admins)
     const adminSection = qs("adminSection");
     if (adminSection) {
       const isAdmin = Number(u.is_admin || 0) === 1;
@@ -396,7 +383,7 @@ async function initAdminPage() {
 //edit profile
 async function initEditProfilePage() {
   const form = qs("editProfileForm");
-  if (!form) return; // not on editprofile.html
+  if (!form) return;
 
   const firstNameEl = qs("firstName");
   const lastNameEl = qs("lastName");
@@ -404,7 +391,6 @@ async function initEditProfilePage() {
   const emailEl = qs("email");
   const msgEl = qs("editProfileMsg");
 
-  // 1) Prefill form from session
   const me = await apiGet("me.php");
   if (!me.ok || !me.json || !me.json.logged_in || !me.json.user) {
     window.location.href = "login.html";
@@ -417,7 +403,6 @@ async function initEditProfilePage() {
   if (usernameEl) usernameEl.value = u.username || "";
   if (emailEl) emailEl.value = u.email || "";
 
-  // 2) Submit handler
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -497,17 +482,16 @@ function initDeleteAccountButton() {
 
 //account dashboard
 async function initAccountDashboardPage() {
-  const tbody = qs("myVideosTbody"); // <-- make sure your table tbody has this id
+  const tbody = qs("myVideosTbody");
   if (!tbody) return;
 
-  // must be logged in
   const me = await apiGet("me.php");
   if (!me.ok || !me.json || !me.json.logged_in) {
     window.location.href = "login.html";
     return;
   }
 
-  const msgEl = qs("accountdashboardMsg"); // <p id="accountdashboardMsg" class="notice hidden">
+  const msgEl = qs("accountdashboardMsg"); 
   const setMsg = (t) => {
     if (!msgEl) return;
     const text = String(t || "").trim();
@@ -516,7 +500,6 @@ async function initAccountDashboardPage() {
     else msgEl.classList.add("hidden");
   };
 
-  // Populate categories dropdown in account dashboard form
   const addCatEl = qs("addCategoryId");
   if (addCatEl) {
     const cats = await apiGet("categories_list.php");
@@ -529,7 +512,7 @@ async function initAccountDashboardPage() {
     }
   }
 
-  // Thumbnail preview for Add Video form
+  // Thumbnail preview
   const addThumbInput = qs("addThumbnail");
   const addImg = qs("addThumbPreviewImg");
   const addEmpty = qs("addThumbPreviewEmpty");
@@ -553,19 +536,15 @@ async function initAccountDashboardPage() {
   }
 
   const addForm = qs("addVideoForm");
-  // Cancel (Account Dashboard Add Video form)
   const cancelBtn = qs("cancelEditBtn");
   if (cancelBtn && addForm) {
     cancelBtn.addEventListener("click", (e) => {
       e.preventDefault();
 
-      // Reset form fields
       addForm.reset();
 
-      // Reset category dropdown
       if (addCatEl) addCatEl.value = "0";
 
-      // Reset thumbnail preview
       if (addImg && addEmpty) {
         addImg.src = "";
         addImg.classList.add("hidden");
@@ -573,7 +552,6 @@ async function initAccountDashboardPage() {
         addEmpty.textContent = "Preview will appear here.";
       }
 
-      // Clear message
       setMsg("");
     });
   }
@@ -613,7 +591,7 @@ async function initAccountDashboardPage() {
         return;
       }
 
-      fd.append("video", videoFile); // MUST be named "video" for PHP
+      fd.append("video", videoFile);
 
       const r = await apiPostMultipart("upload_video.php", fd);
 
@@ -621,7 +599,6 @@ async function initAccountDashboardPage() {
         setMsg("Video added.");
         addForm.reset();
         if (addCatEl) addCatEl.value = "0";
-        // reset preview UI
         if (addImg && addEmpty) {
           addImg.src = "";
           addImg.classList.add("hidden");
@@ -639,7 +616,6 @@ async function initAccountDashboardPage() {
   }
 
   async function loadMyVideos() {
-    // change endpoint name if yours differs
     const r = await apiGet("my_videos_list.php");
 
     if (!r.ok || !r.json || !Array.isArray(r.json.videos)) {
@@ -687,7 +663,6 @@ async function initEditVideoPage() {
   const form = qs("videoForm");
   if (!form) return;
 
-  // must be logged in
   const me = await apiGet("me.php");
   if (!me.ok || !me.json || !me.json.logged_in) {
     window.location.href = "login.html";
@@ -708,7 +683,6 @@ async function initEditVideoPage() {
     return;
   }
 
-  // Load details
   const detail = await apiGet("video_detail.php", { id: String(id) });
   const raw = (detail.json && detail.json.video) ? detail.json.video : null;
 
@@ -717,7 +691,6 @@ async function initEditVideoPage() {
     return;
   }
 
-  // Fill fields
   const videoIdEl = qs("videoId");
   const titleEl = qs("title");
   const descEl = qs("description");
@@ -728,7 +701,6 @@ async function initEditVideoPage() {
   if (descEl) descEl.value = raw.description || "";
   if (catIdEl) catIdEl.value = String(raw.category_id || 0);
 
-  // Load categories into dropdown
   if (catIdEl) {
     const cats = await apiGet("categories_list.php");
     if (cats.ok && cats.json && Array.isArray(cats.json.categories)) {
@@ -740,7 +712,6 @@ async function initEditVideoPage() {
     }
   }
 
-  // Thumbnail preview (file)
   const thumbInput = qs("thumbnail");
   const img = qs("thumbPreviewImg");
   const empty = qs("thumbPreviewEmpty");
@@ -761,7 +732,6 @@ async function initEditVideoPage() {
     });
   }
 
-  // Cancel
   const cancelBtn = qs("cancelEditBtn");
   if (cancelBtn) {
     cancelBtn.addEventListener("click", () => {
@@ -769,7 +739,6 @@ async function initEditVideoPage() {
     });
   }
 
-  // Submit
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -808,7 +777,7 @@ async function initEditVideoPage() {
   });
 }
 
-// ---------- Page init: index.html ----------
+//Page index.html
 async function initIndexPage() {
   const searchInput = qs("searchInput");
   let allVideos = await getVideosList();
@@ -819,13 +788,12 @@ async function initIndexPage() {
   searchInput.addEventListener("input", async () => {
     const q = searchInput.value.trim();
 
-    // Always filter via getVideosList(q) (it handles both modes)
     allVideos = await getVideosList(q);
     renderVideosGrid(allVideos);
   });
 }
 
-// ---------- Page init: video.html ----------
+//Page video.html
 async function initVideoPage() {
   const id = getQueryParam("id");
 
@@ -858,7 +826,6 @@ async function initVideoPage() {
   if (uploaderEl && video.uploader_username) {
     uploaderEl.textContent = "Posted by @" + video.uploader_username;
   }
-  // Real mode: show player, hide placeholder/notice
   if (noticeEl) noticeEl.classList.add("hidden");
   if (placeholderEl) placeholderEl.classList.add("hidden");
 
@@ -872,13 +839,12 @@ async function initVideoPage() {
   }
   if (playerEl) playerEl.classList.remove("hidden");
 
-  // Record watch history
   await addToHistory(video);
 
   await initCommentsForVideoPage(video.id);
 }
 
-// ---------- Page init: history.html ----------
+//Page history.html
 async function initHistoryPage() {
   const tbody = qs("historyTbody");
   if (!tbody) return;
@@ -931,7 +897,6 @@ async function initHistoryPage() {
 //clear all history
 
 async function clearHistoryBackend() {
-  // optional endpoint; if not implemented, just returns not ok
   return await apiPostForm("history_delete.php", { clear_all: "1" });
 }
 
@@ -943,28 +908,21 @@ function initClearHistoryButton() {
     const okConfirm = confirm("Clear your watch history? This cannot be undone.");
     if (!okConfirm) return;
 
-    // 1) Always clear guest/local history
     localStorage.removeItem(HISTORY_KEY);
 
-    // 2) If logged in, also clear DB history
-    // Use your existing "me.php" (logged_in true/false)
     const me = await apiGet("me.php");
     const loggedIn = !!(me.ok && me.json && me.json.logged_in);
 
     if (loggedIn) {
       const r = await clearHistoryBackend();
       if (!r.ok) {
-        // Not fatal: local history is already cleared
         console.warn("history_delete failed", r.status, r.json);
       }
     }
 
-    // 3) Re-render the table
-    // simplest: just call initHistoryPage again (or call your render function)
     if (typeof initHistoryPage === "function") {
       initHistoryPage();
     } else {
-      // fallback: clear table UI directly if needed
       const tbody = qs("historyTbody");
       if (tbody) {
         tbody.innerHTML = `
@@ -978,9 +936,7 @@ function initClearHistoryButton() {
   });
 }
 
-// -------------------------------
 // Comments
-// -------------------------------
 async function fetchComments(videoId) {
   return await apiGet("comments.php", { video_id: String(videoId) });
 }
@@ -1027,7 +983,6 @@ async function initCommentsForVideoPage(videoId) {
 
   if (!listEl || !textEl || !btnEl) return;
 
-  // 1) Load comments
   const res = await fetchComments(videoId);
   if (res.ok && res.json && Array.isArray(res.json.comments)) {
     renderComments(listEl, res.json.comments);
@@ -1036,7 +991,6 @@ async function initCommentsForVideoPage(videoId) {
     renderComments(listEl, []);
   }
 
-  // 2) Enable comment box only if logged in
   const me = await apiGet("me.php");
   const loggedIn = !!(me.ok && me.json && me.json.logged_in);
 
@@ -1051,7 +1005,6 @@ async function initCommentsForVideoPage(videoId) {
   btnEl.disabled = false;
   if (hintEl) hintEl.textContent = "";
 
-  // 3) Post comment
   btnEl.addEventListener("click", async () => {
     const content = (textEl.value || "").trim();
     if (!content) {
@@ -1068,7 +1021,6 @@ async function initCommentsForVideoPage(videoId) {
       textEl.value = "";
       if (hintEl) hintEl.textContent = "";
 
-      // reload comments after posting
       const again = await fetchComments(videoId);
       if (again.ok && again.json && Array.isArray(again.json.comments)) {
         renderComments(listEl, again.json.comments);
@@ -1084,9 +1036,8 @@ async function initCommentsForVideoPage(videoId) {
   });
 }
 
-// ---------- Page init: login.html ----------
+//Page login.html
 function initLoginPage() {
-  // SAFER: only bind if the expected form exists
   const form = qs("loginForm");
   if (!form) return;
 
@@ -1118,7 +1069,6 @@ function initLoginPage() {
 
     if (r.ok && r.json && r.json.success) {
       if (msg) msg.textContent = "Logged in! Redirecting…";
-      // FIX: go to home (or myaccount.html)
       window.location.href = "index.html";
       return;
     }
@@ -1129,17 +1079,15 @@ function initLoginPage() {
 
     console.warn("login failed", r.status, r.json);
 
-    // FIX: show error to user
     if (msg) msg.textContent = err;
     else alert(err);
   });
 }
 
-// ---------- Logout helper ----------
+//Logout helper
 async function doLogout() {
   const r = await apiPostForm("logout.php", {});
   if (r.ok && r.json && r.json.success) {
-    // cler guest/local history
 
     localStorage.removeItem(HISTORY_KEY);
 
@@ -1167,9 +1115,8 @@ function initLogoutBindings() {
   }
 }
 
-// ---------- Register page ----------
+//Register page
 function initRegisterPage() {
-  // SAFER: only bind if the expected form exists
   const form = qs("registerForm");
   if (!form) return;
 

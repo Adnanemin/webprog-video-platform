@@ -160,7 +160,6 @@ a{ color: inherit; text-decoration: none; }
   background: rgba(229,231,235,0.1);
 }
 
-/* Danger / destructive button */
 .btn-danger{
   background: rgba(185, 28, 28, 0.9);
   border-color: rgba(185, 28, 28, 0.9);
@@ -181,7 +180,6 @@ a{ color: inherit; text-decoration: none; }
 .hidden{ display:none; }
 
 
-/* -------- Video page styles -------- */
 .player-wrap{
   margin: 18px 0 30px;
   display: grid;
@@ -226,7 +224,6 @@ a{ color: inherit; text-decoration: none; }
   margin-top: 18px;
 }
 
-/* Demo placeholder inside the video box */
 .video-placeholder{
   border: 1px dashed rgba(156,163,175,0.45);
   border-radius: 12px;
@@ -249,16 +246,16 @@ a{ color: inherit; text-decoration: none; }
   margin: 0;
   color: var(--muted);
 }
-/* -------- Auth pages (login/register) -------- */
+
 .auth-wrap{
-  min-height: calc(100vh - 140px); /* keeps card vertically centered */
+  min-height: calc(100vh - 140px);
   display: grid;
   place-items: center;
   padding: 26px 0 40px;
 }
 
 .auth-card{
-  width: min(520px, 100%); /* responsive: max 520px but fits mobile */
+  width: min(520px, 100%);
   background: linear-gradient(180deg, rgba(17,24,39,0.9), rgba(15,23,42,0.9));
   border: 1px solid rgba(31,41,55,0.9);
   border-radius: var(--radius);
@@ -278,7 +275,7 @@ a{ color: inherit; text-decoration: none; }
 
 .auth-form{
   display: grid;
-  gap: 10px; /* spacing between inputs/labels */
+  gap: 10px;
 }
 
 .label{
@@ -305,7 +302,7 @@ a{ color: inherit; text-decoration: none; }
   color: var(--text);
 }
 
-/* -------- My Account (new layout) -------- */
+/* My Account */
 .account-layout{
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -372,7 +369,7 @@ a{ color: inherit; text-decoration: none; }
   font-size: 18px;
 }
 
-/* -------- Account Dashboard page -------- */
+/*Account Dashboard page */
 .accountdashboard-grid{
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -380,7 +377,6 @@ a{ color: inherit; text-decoration: none; }
   padding-bottom: 30px;
 }
 
-/* Stack on small screens */
 @media (max-width: 900px){
   .accountdashboard-grid{
     grid-template-columns: 1fr;
@@ -429,7 +425,7 @@ a{ color: inherit; text-decoration: none; }
   display: block;
 }
 
-/* -------- Edit Video page -------- */
+/*Edit Video page */
 .editvideo-grid{
   display: grid;
   grid-template-columns: 1fr;
@@ -437,7 +433,6 @@ a{ color: inherit; text-decoration: none; }
   padding-bottom: 30px;
 }
 
-/* Stack on small screens */
 @media (max-width: 900px){
   .editvideo-grid{
     grid-template-columns: 1fr;
@@ -482,7 +477,7 @@ a{ color: inherit; text-decoration: none; }
 }
 
 
-/* -------- Admin page -------- */
+/*Admin page */
 .admin-grid{
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -490,7 +485,6 @@ a{ color: inherit; text-decoration: none; }
   padding-bottom: 30px;
 }
 
-/* Stack on small screens */
 @media (max-width: 900px){
   .admin-grid{
     grid-template-columns: 1fr;
@@ -533,7 +527,6 @@ a{ color: inherit; text-decoration: none; }
   text-align: right;
 }
 
-/* Ghost / cancel button */
 .btn-ghost{
   background: transparent;
 }
@@ -587,7 +580,7 @@ a{ color: inherit; text-decoration: none; }
   font-size: 13px;
 }
 
-/* -------- Welcome / Entrance page -------- */
+/*Welcome Entrance page*/
 
 .welcome-body{
   min-height: 100vh;
@@ -679,9 +672,6 @@ a{ color: inherit; text-decoration: none; }
   justify-content: center;
   position: relative;
 
-  /* Trick: 2 backgrounds:
-     - first is the button fill (padding-box)
-     - second is the animated border (border-box) */
   border: 1px solid transparent;
   border-radius: 12px;
 
@@ -693,7 +683,7 @@ a{ color: inherit; text-decoration: none; }
       rgba(37, 99, 235, 0.25)
     ) border-box;
 
-  /* animate only the border gradient */
+  /* animating the border gradient */
   background-size: auto, 200% 200%;
   background-position: 0 0, 0% 50%;
   animation: welcomeBorderShift 10s linear infinite;
@@ -709,14 +699,13 @@ a{ color: inherit; text-decoration: none; }
   filter: blur(60px);
   opacity: 0.45;
 
-  /* 4 blobs total (2 navy/blue + 2 mint/blue) */
+  /* welcome page background moving circles*/
     background:
     radial-gradient(circle at 30% 30%, rgba(37, 99, 235, 0.30), rgba(15, 23, 42, 0) 60%),
     radial-gradient(circle at 70% 70%, rgba(99, 102, 241, 0.20), rgba(15, 23, 42, 0) 58%),
     radial-gradient(circle at 65% 28%, rgba(16, 185, 129, 0.32), rgba(15, 23, 42, 0) 56%),
     radial-gradient(circle at 25% 75%, rgba(34, 197, 94, 0.28), rgba(15, 23, 42, 0) 58%);
 
-  /* faster movement */
   animation: floatBg 5s ease-in-out infinite;
 }
 
@@ -749,7 +738,7 @@ a{ color: inherit; text-decoration: none; }
   100% { background-position: 0 0, 200% 50%; }
 }
 
-/* -------- Comments section -------- */
+/*Comments section */
 .comments-section{
   margin: 30px 0 40px;
   padding-top: 20px;
@@ -794,7 +783,7 @@ a{ color: inherit; text-decoration: none; }
   line-height: 1.4;
 }
 
-/* -------- Comments box -------- */
+/*Comments box*/
 .comments-box{
   background: linear-gradient(
     180deg,

@@ -12,8 +12,8 @@ $dsn = "mysql:host={$host};dbname={$db};charset={$charset}";
 
 $options = [
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION, // throw error
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, // fetch() dizi dondur
-    PDO::ATTR_EMULATE_PREPARES   => false, // gercek prepare
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, // fetch results as associative arrays
+    PDO::ATTR_EMULATE_PREPARES   => false, // use real prepared statements
 ];
 
 try {

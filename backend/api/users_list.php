@@ -18,7 +18,6 @@ if ((int)($_SESSION['user']['is_admin'] ?? 0) !== 1) {
 require __DIR__ . '/../config/db.php';
 
 try {
-  // adminler listede görünmesin istiyorsun:
   $stmt = $pdo->query("SELECT id, first_name, last_name, username, email
                        FROM users
                        WHERE is_admin = 0

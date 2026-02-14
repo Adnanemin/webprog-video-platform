@@ -38,9 +38,9 @@ SELECT 'Music' WHERE NOT EXISTS (SELECT 1 FROM categories WHERE name='Music');
 INSERT INTO categories(name)
 SELECT 'Sport' WHERE NOT EXISTS (SELECT 1 FROM categories WHERE name='Sport');
 
--- ASMR
+-- Coding
 INSERT INTO categories(name)
-SELECT 'ASMR' WHERE NOT EXISTS (SELECT 1 FROM categories WHERE name='AMSR');
+SELECT 'Coding' WHERE NOT EXISTS (SELECT 1 FROM categories WHERE name='Coding');
 
 -- -------------------------
 -- VIDEOS
