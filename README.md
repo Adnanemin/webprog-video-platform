@@ -32,27 +32,30 @@ Backend
 
 Project Structure
 
-frontend/
-  ├── index.html
-  ├── video.html
-  ├── myaccount.html
-  ├── accountdashboard.html
-  ├── css/
-  ├── js/
-  ├── thumbnails/
-  └── videos/
-
-backend/
-  └── api/
-      ├── upload_video.php
-      ├── edit_video.php
-      ├── login.php
-      ├── register.php
-      └── ...
-
-database/
-  ├── videos/
-  └── thumbnails/
+project-root/
+├── frontend/
+│   ├── css/
+│   ├── js/
+│   ├── index.html
+│   ├── video.html
+│   ├── myaccount.html
+│   └── ...
+├── backend/
+│   ├── config/
+│   │   └── db.php
+│   └── api/
+│       ├── admin/
+│       │   ├── admin_delete_video.php
+│       │   └── admin_edit_video.php
+│       ├── upload_video.php
+│       ├── edit_video.php
+│       ├── login.php
+│       └── ...
+└── database/
+    ├── schema.sql
+    ├── queries.sql
+    ├── videos/
+    └── thumbnails/
 
 
 ⚙️ How It Works
@@ -79,8 +82,8 @@ The frontend then dynamically updates the UI based on the response.
 
 
 👥 Authors
-	•	Frontend: 
-	•	Backend: 
+	•	Frontend: Nazlıgül Coşkun - GitHub: bluexberriesx
+	•	Backend: Adnan Emin Nalçacı - GitHub: Adnanemin
 
 ⸻
 
