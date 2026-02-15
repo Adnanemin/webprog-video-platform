@@ -107,7 +107,7 @@ if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] === UPLOAD_ERR_
         exit;
     }
 
-    $newThumbWebPath = 'thumbnails/' . $thumbName;
+    $newThumbWebPath = 'database/thumbnails/' . $thumbName;
 }
 
 /* Update database */
@@ -133,7 +133,7 @@ try {
     /* Delete old thumbnail if replaced */
     if ($oldThumbWebPath && $newThumbWebPath !== $oldThumbWebPath) {
         $root = realpath(__DIR__ . '/../../');
-        @unlink($root . '/database/' . $oldThumbWebPath);
+        @unlink($root . '/' . $oldThumbWebPath);
     }
 
     echo json_encode([
@@ -147,7 +147,7 @@ try {
     /* Cleanup newly uploaded thumbnail on failure */
     if (isset($newThumbWebPath) && $newThumbWebPath !== $oldThumbWebPath) {
         $root = realpath(__DIR__ . '/../../');
-        @unlink($root . '/database/' . $newThumbWebPath);
+        @unlink($root . '/' . $newThumbWebPath);
     }
 
     error_log('edit_video error: ' . $e->getMessage());

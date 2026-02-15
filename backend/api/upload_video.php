@@ -57,16 +57,16 @@ $thumbDir = $root . '/database/thumbnails';
 
 if (!is_dir($videoDir) && !mkdir($videoDir, 0775, true)) {
     error_log('upload_video: failed to create videos dir: ' . $videoDir);
-    json_fail(500, 'Failed to save video');
+    json_fail(500, 'Failed to create videos directory');
 }
 if (!is_dir($thumbDir) && !mkdir($thumbDir, 0775, true)) {
     error_log('upload_video: failed to create thumbnails dir: ' . $thumbDir);
-    json_fail(500, 'Failed to save video');
+    json_fail(500, 'Failed to create thumbnails directory');
 }
 
 if (!is_writable($videoDir)) {
     error_log('upload_video: videos dir not writable: ' . $videoDir);
-    json_fail(500, 'Failed to save video');
+    json_fail(500, 'Videos directory is not writable');
 }
 
 /* Video validation */
@@ -92,7 +92,7 @@ $videoFsPath = $videoDir . '/' . $videoName;
 
 if (!is_uploaded_file($_FILES['video']['tmp_name'])) {
     error_log('upload_video: tmp file is not a valid uploaded file: ' . ($_FILES['video']['tmp_name'] ?? ''));
-    json_fail(500, 'Failed to save video');
+    json_fail(500, 'Invalid temp file');
 }
 
 if (!move_uploaded_file($_FILES['video']['tmp_name'], $videoFsPath)) {
@@ -102,10 +102,10 @@ if (!move_uploaded_file($_FILES['video']['tmp_name'], $videoFsPath)) {
     error_log('  videoDirWritable=' . (is_writable($videoDir) ? 'yes' : 'no'));
     $last = error_get_last();
     if ($last) error_log('  last_error=' . json_encode($last));
-    json_fail(500, 'Failed to save video');
+    json_fail(500, 'Failed to move uploaded file');
 }
 
-$videoWebPath = 'videos/' . $videoName;
+$videoWebPath = 'database/videos/' . $videoName;
 
 /* Thumbnail (optional) */
 $thumbWebPath = null;
@@ -135,7 +135,7 @@ if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] === UPLOAD_ERR_
         json_fail(500, 'Failed to save thumbnail');
     }
 
-    $thumbWebPath = 'thumbnails/' . $thumbName;
+    $thumbWebPath = 'database/thumbnails/' . $thumbName;
 }
 
 /* Insert into database */

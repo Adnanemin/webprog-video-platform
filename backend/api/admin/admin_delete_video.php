@@ -64,7 +64,7 @@ try {
 
     $pdo->commit();
 
-    /* Delete files from filesystem (best effort) */
+    /* Delete files from filesystem */
     $root = realpath(__DIR__ . '/../../../'); // project root
     if (!empty($video['video_path'])) {
         @unlink($root . '/frontend/' . $video['video_path']);

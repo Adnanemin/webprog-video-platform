@@ -54,6 +54,10 @@ try {
     $stmt = $pdo->prepare('DELETE FROM watch_history WHERE video_id = ?');
     $stmt->execute([$videoId]);
 
+    /* Delete comments linked to this video */
+    $stmt = $pdo->prepare('DELETE FROM comments WHERE video_id = ?');
+    $stmt->execute([$videoId]);
+
     /* Delete video row */
     $stmt = $pdo->prepare('DELETE FROM videos WHERE id = ?');
     $stmt->execute([$videoId]);
@@ -63,10 +67,10 @@ try {
     /* Delete files from filesystem */
     $root = realpath(__DIR__ . '/../../'); // project root
     if (!empty($video['video_path'])) {
-        @unlink($root . '/database/' . $video['video_path']);
+        @unlink($root . '/' . $video['video_path']);
     }
     if (!empty($video['thumbnail_path'])) {
-        @unlink($root . '/database/' . $video['thumbnail_path']);
+        @unlink($root . '/' . $video['thumbnail_path']);
     }
 
     echo json_encode([
