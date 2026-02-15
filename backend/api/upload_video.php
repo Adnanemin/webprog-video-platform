@@ -52,8 +52,8 @@ if ($root === false) {
     json_fail(500, 'Server error');
 }
 
-$videoDir = $root . '/frontend/videos';
-$thumbDir = $root . '/frontend/thumbnails';
+$videoDir = $root . '/database/videos';
+$thumbDir = $root . '/database/thumbnails';
 
 if (!is_dir($videoDir) && !mkdir($videoDir, 0775, true)) {
     error_log('upload_video: failed to create videos dir: ' . $videoDir);

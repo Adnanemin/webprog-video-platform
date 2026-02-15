@@ -63,10 +63,10 @@ try {
     /* Delete files from filesystem */
     $root = realpath(__DIR__ . '/../../'); // project root
     if (!empty($video['video_path'])) {
-        @unlink($root . '/frontend/' . $video['video_path']);
+        @unlink($root . '/database/' . $video['video_path']);
     }
     if (!empty($video['thumbnail_path'])) {
-        @unlink($root . '/frontend/' . $video['thumbnail_path']);
+        @unlink($root . '/database/' . $video['thumbnail_path']);
     }
 
     echo json_encode([
